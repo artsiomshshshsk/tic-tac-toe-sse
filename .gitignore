@@ -4,3 +4,4 @@ cloud-lab-user_credentials.txt
 .terraform
 terraform.tfstate
 terraform.tfstate.backup
+.terraform.tfstate.lock.info

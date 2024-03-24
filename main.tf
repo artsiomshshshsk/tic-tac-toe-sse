@@ -26,6 +26,8 @@ resource "aws_instance" "app_instance" {
     Name = "Tic-Tac-Toe-App"
   }
 
+  user_data = file("./setup-script.sh")
+
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 }
 

@@ -19,7 +19,7 @@ resource "aws_key_pair" "deployer" {
 
 
 resource "aws_instance" "app_instance" {
-  ami           = "ami-08116b9957a259459"
+  ami           = "ami-023adaba598e661ac"
   instance_type = "t2.micro"
   key_name                = aws_key_pair.deployer.key_name
   tags = {

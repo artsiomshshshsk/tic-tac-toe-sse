@@ -17,7 +17,7 @@ git clone https://github.com/artsiomshshshsk/tic-tac-toe-sse.git
 cd tic-tac-toe-sse/
 
 sudo docker-compose pull
-sudo docker-compose up --no-build -d
+sudo docker-compose up --no-build
 
 echo "Script completed"
 echo "Script completed" > /var/tmp/script-completed.flag

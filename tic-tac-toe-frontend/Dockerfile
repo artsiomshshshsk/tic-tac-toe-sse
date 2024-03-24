@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
+RUN ls -l  # Debugging: List files in /app to check if package.json is present
+
 RUN npm install --verbose
 
 COPY . .

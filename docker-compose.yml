@@ -3,11 +3,13 @@ version: '3.8'
 services:
   backend:
     build: ./tic-tac-toe-backend
+    image: artsiomshshshsk/cloud-programming-lab:tic-tac-toe-back
     ports:
       - "8081:8081"
 
   frontend:
     build: ./tic-tac-toe-frontend
+    image: artsiomshshshsk/cloud-programming-lab:tic-tac-toe-front
     ports:
       - "8080:8080"
     depends_on:

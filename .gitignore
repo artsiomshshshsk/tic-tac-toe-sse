@@ -1,2 +1,6 @@
 cloud-lab-user_credentials.txt
 .idea
+.terraform.lock.hcl
+.terraform
+terraform.tfstate
+terraform.tfstate.backup

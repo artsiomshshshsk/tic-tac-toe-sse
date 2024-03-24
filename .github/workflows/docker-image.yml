@@ -22,7 +22,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./tic-tac-toe-frontend
-          file: Dockerfile
+          file: ./Dockerfile
           push: true
           tags: artsiomshshshsk/cloud-programming-lab:tic-tac-toe-front
 
@@ -31,6 +31,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./tic-tac-toe-backend
-          file: Dockerfile
+          file: ./Dockerfile
           push: true
           tags: artsiomshshshsk/cloud-programming-lab:tic-tac-toe-back

@@ -8,18 +8,17 @@ terraform {
 }
 
 provider "aws" {
-  region = "eu-central-1"
+  region = var.region
 }
 
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
-  public_key = file("~/.ssh/cloud-key.pub")
+  public_key = file(var.ssh-public-key)
 }
 
 
-
 resource "aws_instance" "app_instance" {
-  ami           = "ami-023adaba598e661ac"
+  ami           = var.ec2-ami
   instance_type = "t2.micro"
   key_name                = aws_key_pair.deployer.key_name
   tags = {
@@ -77,16 +76,6 @@ resource "aws_security_group" "app_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Ingress rule for ICMP (ping)
-  ingress {
-    description = "ICMP for ping"
-    from_port   = -1  # ICMP type for Echo Request
-    to_port     = -1  # ICMP code for Echo Request
-    protocol    = "icmp"
-    cidr_blocks = ["0.0.0.0/0"]  # Adjust this to be more restrictive if needed
-  }
-
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -121,12 +110,4 @@ resource "aws_route_table" "app_rt" {
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.app_subnet.id
   route_table_id = aws_route_table.app_rt.id
-}
-
-
-
-
-output "ec2_public_ip" {
-  description = "Public IP address of the EC2 instance"
-  value       = aws_instance.app_instance.public_ip
 }

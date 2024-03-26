@@ -1,5 +1,7 @@
 version: '3.8'
 
+name: tic-tac-toe
+
 services:
   backend:
     build: ./tic-tac-toe-backend

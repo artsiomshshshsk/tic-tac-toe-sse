@@ -22,10 +22,16 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 
 docker -v
 
-git clone https://github.com/artsiomshshshsk/tic-tac-toe-sse.git
-cd tic-tac-toe-sse/ || exit
+echo "Downloading docker-compose.yml"
+
+curl -o docker-compose.yml https://raw.githubusercontent.com/artsiomshshshsk/tic-tac-toe-sse/main/docker-compose.yml
+
+echo "Running docker compose pull"
 
 sudo docker compose pull
+
+echo "Running docker compose up"
+
 sudo docker compose up --no-build
 
 echo "Script completed"

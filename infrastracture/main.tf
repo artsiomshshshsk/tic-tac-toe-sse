@@ -11,29 +11,94 @@ provider "aws" {
   region = var.region
 }
 
+
+resource "aws_iam_instance_profile" "elastic_beanstalk_ec2_profile" {
+  name = "elastic_beanstalk_ec2_profile"
+  role = "LabRole"
+}
+
+resource "aws_s3_bucket" "my-ttt-bucket" {
+  bucket = "my-artsi-tic-tac-toe-bucket"
+}
+
+resource "aws_s3_object" "my-s3-object" {
+  bucket = aws_s3_bucket.my-ttt-bucket.id
+  key    = "docker-compose.yml"
+  source = "../docker-compose.yml"
+}
+
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
   public_key = file(var.ssh-public-key)
 }
 
+resource "aws_elastic_beanstalk_application" "ttt-app" {
+  name        = "tic-tac-toe-app"
+  description = "Tic Tac Toe application"
+}
 
-resource "aws_instance" "app_instance" {
-  ami           = var.ec2-ami
-  instance_type = "t2.micro"
-  key_name                = aws_key_pair.deployer.key_name
-  tags = {
-    Name = "Tic-Tac-Toe-App"
+resource "aws_elastic_beanstalk_application_version" "ttt-app-version" {
+  name        = "1.0.0"
+  application = aws_elastic_beanstalk_application.ttt-app.name
+  description = "Tic Tac Toe application version"
+  bucket      = aws_s3_bucket.my-ttt-bucket.bucket
+  key         = aws_s3_object.my-s3-object.key
+}
+
+resource "aws_elastic_beanstalk_environment" "ttt-env" {
+  name                = "tic-tac-toe-end"
+  application         = aws_elastic_beanstalk_application.ttt-app.name
+  solution_stack_name = "64bit Amazon Linux 2023 v4.3.0 running Docker"
+  version_label       = aws_elastic_beanstalk_application_version.ttt-app-version.name
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "IamInstanceProfile"
+    value     = aws_iam_instance_profile.elastic_beanstalk_ec2_profile.name
   }
 
-  user_data = file("./setup-script.sh")
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "InstanceType"
+    value     = "t2.micro"
+  }
 
-  vpc_security_group_ids = [aws_security_group.app_sg.id]
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "EC2KeyName"
+    value     = aws_key_pair.deployer.key_name
+  }
+
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "AssociatePublicIpAddress"
+    value     = "true"
+  }
+
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "VPCId"
+    value     = aws_vpc.app_vpc.id
+  }
+
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "Subnets"
+    value     = aws_subnet.app_subnet.id
+  }
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "SecurityGroups"
+    value     = aws_security_group.app_sg.id
+  }
 }
 
 
 resource "aws_security_group" "app_sg" {
   name        = "tic_tac_toe_sg"
   description = "Allow traffic for Tic-Tac-Toe app"
+  vpc_id      = aws_vpc.app_vpc.id
 
   ingress {
     description = "Frontend"

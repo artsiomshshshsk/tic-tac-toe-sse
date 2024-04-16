@@ -24,7 +24,7 @@ jobs:
           context: ./tic-tac-toe-frontend
           file: ./tic-tac-toe-frontend/Dockerfile
           push: true
-          tags: artsiomshshshsk/cloud-programming-lab:tic-tac-toe-front
+          tags: artsiomshshshsk/cloud-programming-lab:tic-tac-toe-front-fargate
 
 
       - name: Build and Push Backend Docker Image
@@ -33,4 +33,4 @@ jobs:
           context: ./tic-tac-toe-backend
           file: ./tic-tac-toe-backend/Dockerfile
           push: true
-          tags: artsiomshshshsk/cloud-programming-lab:tic-tac-toe-back
+          tags: artsiomshshshsk/cloud-programming-lab:tic-tac-toe-back-fargate

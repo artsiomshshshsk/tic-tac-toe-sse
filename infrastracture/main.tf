@@ -50,3 +50,16 @@ module "ec2" {
   security_group_id = module.security.security_group_id
   subnet_id       = module.networking.subnet_id
 }
+
+
+module "fargate" {
+  count = var.fargate_deployment ? 1 : 0
+  source              = "./modules/fargate"
+  cluster_name        = "tic-tac-toe-cluster"
+  cpu                 = "256"
+  memory              = "512"
+  desired_count       = 1
+  subnets             = [module.networking.subnet_id]
+  security_groups     = [module.security.security_group_id]
+  assign_public_ip    = true
+}

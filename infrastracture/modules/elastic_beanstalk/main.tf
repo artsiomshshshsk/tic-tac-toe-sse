@@ -1,3 +1,19 @@
+resource "aws_iam_instance_profile" "elastic_beanstalk_ec2_profile" {
+  name = "elastic_beanstalk_ec2_profile"
+  role = "LabRole"
+}
+
+resource "aws_s3_bucket" "my-ttt-bucket" {
+  bucket = "my-artsi-tic-tac-toe-bucket"
+}
+
+resource "aws_s3_object" "my-s3-object" {
+  bucket = aws_s3_bucket.my-ttt-bucket.id
+  key    = "docker-compose.yml"
+  source = "../docker-compose.yml"
+  etag = filemd5("../docker-compose.yml")
+}
+
 resource "aws_elastic_beanstalk_application" "app" {
   name        = var.application_name
   description = var.description
@@ -7,8 +23,8 @@ resource "aws_elastic_beanstalk_application_version" "version" {
   name        = var.version_label
   application = aws_elastic_beanstalk_application.app.name
   description = "Version ${var.version_label} of ${var.application_name}"
-  bucket      = var.bucket
-  key         = var.key
+  bucket      = aws_s3_bucket.my-ttt-bucket.bucket
+  key         = aws_s3_object.my-s3-object.key
 }
 
 resource "aws_elastic_beanstalk_environment" "env" {
@@ -20,7 +36,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
-    value     = var.instance_profile
+    value     = aws_iam_instance_profile.elastic_beanstalk_ec2_profile.name
   }
 
   setting {
@@ -38,7 +54,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   setting {
     namespace = "aws:ec2:vpc"
     name      = "AssociatePublicIpAddress"
-    value     = tostring(var.associate_public_ip_address)
+    value     = true
   }
 
   setting {

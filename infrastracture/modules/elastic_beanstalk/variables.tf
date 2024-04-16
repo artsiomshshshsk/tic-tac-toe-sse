@@ -18,21 +18,6 @@ variable "version_label" {
   type        = string
 }
 
-variable "bucket" {
-  description = "The S3 bucket that stores the application versions"
-  type        = string
-}
-
-variable "key" {
-  description = "The S3 key where the application version is stored"
-  type        = string
-}
-
-variable "instance_profile" {
-  description = "The IAM instance profile for the Elastic Beanstalk environment"
-  type        = string
-}
-
 variable "instance_type" {
   description = "The instance type for the Elastic Beanstalk environment"
   type        = string
@@ -41,11 +26,6 @@ variable "instance_type" {
 variable "key_name" {
   description = "The EC2 key pair name"
   type        = string
-}
-
-variable "associate_public_ip_address" {
-  description = "Whether to associate public IP addresses to instances"
-  type        = bool
 }
 
 variable "vpc_id" {

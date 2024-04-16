@@ -11,22 +11,6 @@ provider "aws" {
   region = var.region
 }
 
-resource "aws_iam_instance_profile" "elastic_beanstalk_ec2_profile" {
-  name = "elastic_beanstalk_ec2_profile"
-  role = "LabRole"
-}
-
-resource "aws_s3_bucket" "my-ttt-bucket" {
-  bucket = "my-artsi-tic-tac-toe-bucket"
-}
-
-resource "aws_s3_object" "my-s3-object" {
-  bucket = aws_s3_bucket.my-ttt-bucket.id
-  key    = "docker-compose.yml"
-  source = "../docker-compose.yml"
-  etag = filemd5("../docker-compose.yml")
-}
-
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
   public_key = file(var.ssh-public-key)
@@ -49,13 +33,20 @@ module "elastic_beanstalk" {
   description                 = "Tic Tac Toe application"
   solution_stack_name         = "64bit Amazon Linux 2023 v4.3.0 running Docker"
   version_label               = "1.0.0"
-  bucket                      = aws_s3_bucket.my-ttt-bucket.bucket
-  key                         = aws_s3_object.my-s3-object.key
-  instance_profile            = aws_iam_instance_profile.elastic_beanstalk_ec2_profile.name
   instance_type               = "t2.micro"
   key_name                    = aws_key_pair.deployer.key_name
-  associate_public_ip_address = true
   vpc_id                      = module.networking.vpc_id
   subnet_ids                  = [module.networking.subnet_id]
   security_group_ids          = [module.security.security_group_id]
+}
+
+module "ec2" {
+  source          = "./modules/ec2_instance"
+  count           = var.ec2_deployment ? 1 : 0
+  ami             = var.ec2-ami
+  instance_type   = "t2.micro"
+  key_name        = aws_key_pair.deployer.key_name
+  user_data_path  = "./setup-script.sh"
+  security_group_id = module.security.security_group_id
+  subnet_id       = module.networking.subnet_id
 }

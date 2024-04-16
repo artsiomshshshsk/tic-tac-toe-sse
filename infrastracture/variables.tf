@@ -22,6 +22,12 @@ variable "ec2-ami" {
   default     = "ami-080e1f13689e07408"
 }
 
+variable "ec2_deployment" {
+  description = "EC2 deployment"
+  type        = bool
+  default     = false
+}
+
 variable "beanstalk_deployment" {
   description = "Beanstalk deployment"
   type        = bool

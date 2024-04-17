@@ -25,13 +25,13 @@ variable "ec2-ami" {
 variable "ec2_deployment" {
   description = "EC2 deployment"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "beanstalk_deployment" {
   description = "Beanstalk deployment"
   type        = bool
-  default     = false
+  default     = true
 }
 
 

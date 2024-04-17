@@ -11,7 +11,7 @@ resource "aws_s3_object" "my-s3-object" {
   bucket = aws_s3_bucket.my-ttt-bucket.id
   key    = "docker-compose.yml"
   source = "../docker-compose.yml"
-  etag = filemd5("../docker-compose.yml")
+  etag   = filemd5("../docker-compose.yml")
 }
 
 resource "aws_elastic_beanstalk_application" "app" {

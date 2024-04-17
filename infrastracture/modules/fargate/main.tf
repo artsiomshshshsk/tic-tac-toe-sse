@@ -1,9 +1,9 @@
 locals {
   container_definitions = jsonencode([
     {
-      name      = "backend"
-      image     = "artsiomshshshsk/cloud-programming-lab:tic-tac-toe-back-fargate"
-      essential = true
+      name         = "backend"
+      image        = "artsiomshshshsk/cloud-programming-lab:tic-tac-toe-back-fargate"
+      essential    = true //the task will stop if this container fails.
       portMappings = [
         {
           containerPort = 8081,
@@ -13,7 +13,7 @@ locals {
       ],
       logConfiguration = {
         logDriver = "awslogs",
-        options = {
+        options   = {
           "awslogs-group"         = aws_cloudwatch_log_group.backend_log_group.name,
           "awslogs-region"        = "us-east-1",
           "awslogs-stream-prefix" = "backend"
@@ -21,9 +21,9 @@ locals {
       }
     },
     {
-      name       = "frontend"
-      image      = "artsiomshshshsk/cloud-programming-lab:tic-tac-toe-front-fargate"
-      essential  = true
+      name         = "frontend"
+      image        = "artsiomshshshsk/cloud-programming-lab:tic-tac-toe-front-fargate"
+      essential    = true
       portMappings = [
         {
           containerPort = 8080,
@@ -33,7 +33,7 @@ locals {
       ],
       logConfiguration = {
         logDriver = "awslogs",
-        options = {
+        options   = {
           "awslogs-group"         = aws_cloudwatch_log_group.frontend_log_group.name,
           "awslogs-region"        = "us-east-1",
           "awslogs-stream-prefix" = "frontend"
@@ -48,11 +48,6 @@ locals {
     }
   ])
 }
-
-
-
-
-
 
 resource "aws_ecs_cluster" "app_cluster" {
   name = var.cluster_name
@@ -84,8 +79,8 @@ resource "aws_ecs_service" "app_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = var.subnets
-    security_groups = var.security_groups
+    subnets          = var.subnets
+    security_groups  = var.security_groups
     assign_public_ip = var.assign_public_ip
   }
 }

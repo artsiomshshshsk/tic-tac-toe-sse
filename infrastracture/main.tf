@@ -63,3 +63,30 @@ module "fargate" {
   security_groups  = [module.security.security_group_id]
   assign_public_ip = true
 }
+
+
+resource "aws_cognito_user_pool" "tic-tac-toe-user-pool" {
+  name                     = "tic-tac-toe-user-pool"
+  auto_verified_attributes = ["email"]
+}
+
+
+resource "aws_cognito_user_pool_client" "tic-tac-toe-user-pool-client" {
+  name = "tic-tac-toe-user-pool-client"
+
+  user_pool_id = aws_cognito_user_pool.tic-tac-toe-user-pool.id
+}
+
+
+resource "aws_cognito_user_pool_domain" "tic-tac-toe-user-pool-domain" {
+  domain       = "ttt-user-pool"
+  user_pool_id = aws_cognito_user_pool.tic-tac-toe-user-pool.id
+}
+
+output "user_pool_id" {
+  value = aws_cognito_user_pool.tic-tac-toe-user-pool.id
+}
+
+output "client_id" {
+  value = aws_cognito_user_pool_client.tic-tac-toe-user-pool-client.id
+}

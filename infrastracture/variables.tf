@@ -31,12 +31,12 @@ variable "ec2_deployment" {
 variable "beanstalk_deployment" {
   description = "Beanstalk deployment"
   type        = bool
-  default     = true
+  default     = false
 }
 
 
 variable "fargate_deployment" {
   description = "Fargate deployment"
   type        = bool
-  default     = true
+  default     = false
 }

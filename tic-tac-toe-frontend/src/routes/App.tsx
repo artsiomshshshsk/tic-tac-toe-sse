@@ -1,8 +1,8 @@
-import './App.css'
-import MyForm from "./components/MyForm.tsx";
+import '../App.css'
+import MyForm from "../components/MyForm.tsx";
 import {useEffect, useState} from "react";
-import {Cell, GameEvent, makeMove, subscribe} from "./api/Api.ts";
-import Board from "./components/Board.tsx";
+import {Cell, GameEvent, makeMove, subscribe} from "../api/Api.ts";
+import Board from "../components/Board.tsx";
 
 
 export enum Step {

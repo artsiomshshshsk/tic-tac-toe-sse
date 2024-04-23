@@ -12,6 +12,10 @@ export enum Step {
     END
 }
 
+// client_id = "7bk1et33c9j0h4ptch6416t269"
+// user_pool_id = "us-east-1_3ffwdgpVt"
+
+
 
 function App() {
 

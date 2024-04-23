@@ -7,9 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Formik, Form, Field } from 'formik';
 
 const Register = () => {
   return (
@@ -17,30 +17,41 @@ const Register = () => {
       <Card className="w-[450px] my-52">
         <CardHeader>
           <CardTitle>Sign-in</CardTitle>
-          <CardDescription>Sign-in to play Tic Tac Toe !</CardDescription>
+          <CardDescription>Sign-in to play Tic Tac Toe!</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="username">Username</Label>
-                <Input id="name" placeholder="Your username"/>
-              </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type={'password'} placeholder="Your password"/>
-              </div>
-            </div>
-          </form>
+          <Formik
+            initialValues={{ username: '', password: '' }}
+            onSubmit={(values, { setSubmitting }) => {
+              // Implementation for form submission, e.g., calling an API
+              alert('Login Details: ' + JSON.stringify(values, null, 2));
+              setSubmitting(false);
+            }}
+          >
+            {({ isSubmitting }) => (
+              <Form>
+                <div className="grid w-full items-center gap-4">
+                  <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="username">Username</Label>
+                    <Field as={Input} id="username" name="username" placeholder="Your username"/>
+                  </div>
+                  <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="password">Password</Label>
+                    <Field as={Input} id="password" name="password" type="password" placeholder="Your password"/>
+                  </div>
+                </div>
+                <CardFooter className="flex justify-center">
+                  <div className={'flex items-center space-x-2.5 my-5 mb-0'}>
+                    <Button type="submit" disabled={isSubmitting}>Sign-in</Button>
+                    <span>
+                      Not a member yet? <a href="/register" className="text-blue-500">Sign-up</a>
+                    </span>
+                  </div>
+                </CardFooter>
+              </Form>
+            )}
+          </Formik>
         </CardContent>
-        <CardFooter className="flex justify-center">
-          <div className={'flex items-center space-x-2.5'}>
-            <Button>Sign-in</Button>
-            <span>
-            Not a member yet? <a href="/register" className="text-blue-500">Sign-up</a>
-            </span>
-          </div>
-        </CardFooter>
       </Card>
     </div>
   );

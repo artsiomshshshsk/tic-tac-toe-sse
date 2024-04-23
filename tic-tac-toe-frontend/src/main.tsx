@@ -1,4 +1,5 @@
 import ErrorPage from '@/error-page.tsx';
+import ConfirmCode from '@/routes/ConfirmCode.tsx';
 import Login from '@/routes/Login.tsx';
 import Register from '@/routes/Register.tsx';
 import { Amplify } from 'aws-amplify';
@@ -19,7 +20,7 @@ Amplify.configure({
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/game",
     element: <App />,
     errorElement: <ErrorPage />,
   },
@@ -28,9 +29,13 @@ const router = createBrowserRouter([
     element: <Register />,
   },
   {
+    path: "/confirm",
+    element: <ConfirmCode />,
+  },
+  {
     path: 'login',
     element: <Login />,
-  }
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

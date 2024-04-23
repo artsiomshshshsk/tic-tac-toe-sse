@@ -1,4 +1,6 @@
 import '../App.css'
+import { Button } from '@/components/ui/button.tsx';
+import { useLocation } from 'react-router-dom';
 import MyForm from "../components/MyForm.tsx";
 import {useEffect, useState} from "react";
 import {Cell, GameEvent, makeMove, subscribe} from "../api/Api.ts";
@@ -12,14 +14,13 @@ export enum Step {
     END
 }
 
-// client_id = "7bk1et33c9j0h4ptch6416t269"
-// user_pool_id = "us-east-1_3ffwdgpVt"
-
-
-
 function App() {
 
-    const [username, setUsername] = useState<string | undefined>(undefined);
+    // const [username, setUsername] = useState<string | undefined>(undefined);
+    
+    const location = useLocation();
+    const { username } = location.state || {};
+    
     const [eventSource, setEventSource] = useState<undefined|EventSource>(undefined);
     const [step, setStep] = useState<Step>(Step.START);
     const [gameId, setGameId] = useState<number | undefined>(undefined);
@@ -58,10 +59,9 @@ function App() {
     }
 
 
-    const handleSubmitUsername = (val: string) => {
-        const es = subscribe(val, handleGameEvent);
+    const handleFindGame = () => {
+        const es = subscribe(username, handleGameEvent);
         setEventSource(es);
-        setUsername(val);
         setStep(Step.WAITING);
     }
 
@@ -75,12 +75,12 @@ function App() {
             setEventSource(undefined);
         }
     }
-
+  
 
     if(step === Step.START) {
         return <div className={"App"}>
-            <h1>Enter your username to start playing</h1>
-            <MyForm onSubmit={handleSubmitUsername}/>
+            <h1>Hi {username}! Press button to start playing with random opponent</h1>
+            <Button onClick={handleFindGame}>Find game</Button>
         </div>
     }
     else if(step === Step.WAITING) {

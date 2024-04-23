@@ -10,8 +10,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Formik, Form, Field } from 'formik';
+import { signIn, type SignInInput } from 'aws-amplify/auth';
+import { useNavigate } from 'react-router-dom';
 
-const Register = () => {
+async function handleSignIn({ username, password }: SignInInput) {
+  try {
+    const { isSignedIn, nextStep } = await signIn({ username, password });
+    
+    console.log(isSignedIn);
+    console.log(nextStep);
+  } catch (error) {
+    console.log('error signing in', error);
+  }
+}
+
+const Login = () => {
+  
+  const navigate = useNavigate();
+  
+  
   return (
     <div className={'flex justify-center'}>
       <Card className="w-[450px] my-52">
@@ -23,8 +40,12 @@ const Register = () => {
           <Formik
             initialValues={{ username: '', password: '' }}
             onSubmit={(values, { setSubmitting }) => {
-              // Implementation for form submission, e.g., calling an API
-              alert('Login Details: ' + JSON.stringify(values, null, 2));
+              handleSignIn({
+                username: values.username,
+                password: values.password
+              }).then(() => {
+                navigate('/game', {state: {username: values.username}});
+              })
               setSubmitting(false);
             }}
           >
@@ -57,4 +78,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

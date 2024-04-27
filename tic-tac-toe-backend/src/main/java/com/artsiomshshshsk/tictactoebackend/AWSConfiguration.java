@@ -15,19 +15,20 @@ public class AWSConfiguration {
 
     @Bean
     public AWSCognitoIdentityProvider cognitoIdentityProvider(AWSCredentials credentials,
-                                                              @Value("${AWS_REGION}") String region) {
+                                                              CognitoClientConfig config) {
 
         return AWSCognitoIdentityProviderClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(region)
+                .withRegion(config.region())
                 .build();
     }
 
 
     @Bean
     CognitoClientConfig cognitoClientConfig(@Value("${AWS_COGNITO_CLIENT_ID}") String clientId,
-                                            @Value("${AWS_COGNITO_USER_POOL_ID}") String userPoolId) {
-        return new CognitoClientConfig(clientId, userPoolId);
+                                            @Value("${AWS_COGNITO_USER_POOL_ID}") String userPoolId,
+                                            @Value("${AWS_REGION}") String region){
+        return new CognitoClientConfig(clientId, userPoolId, region);
     }
 
     @Bean

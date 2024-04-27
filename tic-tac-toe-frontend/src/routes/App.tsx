@@ -1,9 +1,8 @@
 import '../App.css'
 import { Button } from '@/components/ui/button.tsx';
 import { useLocation } from 'react-router-dom';
-import MyForm from "../components/MyForm.tsx";
 import {useEffect, useState} from "react";
-import {Cell, GameEvent, makeMove, subscribe} from "../api/Api.ts";
+import {Cell, GameEvent, makeMove, subscribe} from "../api/GameApiClient.ts";
 import Board from "../components/Board.tsx";
 
 
@@ -60,7 +59,7 @@ function App() {
 
 
     const handleFindGame = () => {
-        const es = subscribe(username, handleGameEvent);
+        const es = subscribe(handleGameEvent);
         setEventSource(es);
         setStep(Step.WAITING);
     }

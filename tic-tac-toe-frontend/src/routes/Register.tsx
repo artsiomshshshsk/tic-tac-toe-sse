@@ -1,3 +1,4 @@
+import { signUp } from '@/api/AuthApiClient.ts';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,54 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Formik, Form, Field } from 'formik';
-import { signUp } from 'aws-amplify/auth';
 import { useNavigate } from 'react-router-dom';
 
-type SignUpParameters = {
-  username: string;
-  password: string;
-  email: string;
-};
-
-async function handleSignUp({
-                              username,
-                              password,
-                              email
-                            }: SignUpParameters) {
-  try {
-    const { isSignUpComplete, userId, nextStep } = await signUp({
-      username,
-      password,
-      options: {
-        userAttributes: {
-          email
-        },
-        autoSignIn: true
-      }
-    });
-    
-    console.log(userId);
-    console.log(isSignUpComplete);
-    console.log(nextStep);
-    
-    switch (nextStep.signUpStep) {
-      case 'CONFIRM_SIGN_UP':
-        console.log('User needs to confirm sign up, a code has been sent to their email');
-        break;
-      case 'DONE':
-        console.log('Sign up process is complete');
-        break;
-      case 'COMPLETE_AUTO_SIGN_IN':
-        console.log('Sign up process is complete, user has been automatically signed in');
-        break;
-      default:
-        console.log('Unhandled sign up step');
-    }
-    
-  } catch (error) {
-    console.log('error signing up:', error);
-  }
-}
 
 const Register = () => {
   
@@ -75,13 +30,9 @@ const Register = () => {
           <Formik
             initialValues={{ username: '', email: '', password: '' }}
             onSubmit={(values, { setSubmitting }) => {
-              console.log(values);
-              handleSignUp({
-                username: values.username,
-                email: values.email,
-                password: values.password
-              })
-                .then(() =>         navigate('/confirm', { state: { username : values.username} }))
+              const { username, email, password } = values;
+              signUp(username, email, password)
+                .then(() => navigate('/confirm', { state: { username : values.username} }))
               setSubmitting(false);
             }}
           >

@@ -1,3 +1,4 @@
+import { EventSourcePolyfill } from 'ng-event-source';
 
 const API_URL = '/api';
 
@@ -12,8 +13,12 @@ export interface GameEvent {
     currentPlayer: string;
     gameId: number;
 }
-export const subscribe = (username: string, onEvent: (event: GameEvent) => void) => {
-    const eventSource = new EventSource(`${API_URL}/subscribe/${username}`);
+export const subscribe = (onEvent: (event: GameEvent) => void) => {
+    const token = getAuthToken();
+    const eventSource = new EventSourcePolyfill(`${API_URL}/subscribe`,
+      {
+          headers: { Authorization: `Bearer ${token}`}
+      });
     eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
         onEvent(data);
@@ -28,10 +33,13 @@ interface MoveRequest {
 }
 
 export async function makeMove(gameId: number, move: MoveRequest): Promise<void> {
+    const token = getAuthToken();
+    console.log("token", token);
     const response = await fetch(`${API_URL}/move/${gameId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(move),
     });
@@ -40,3 +48,10 @@ export async function makeMove(gameId: number, move: MoveRequest): Promise<void>
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
 }
+
+
+
+function getAuthToken() {
+    return localStorage.getItem('accessToken');
+}
+

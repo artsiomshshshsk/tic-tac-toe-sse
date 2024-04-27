@@ -1,3 +1,4 @@
+import { confirm } from '@/api/AuthApiClient.ts';
 import { Button } from '@/components/ui/button.tsx';
 import {
   Card,
@@ -6,9 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-
-import { confirmSignUp, type ConfirmSignUpInput } from 'aws-amplify/auth';
 
 
 import {
@@ -20,24 +18,6 @@ import {
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-
-async function handleSignUpConfirmation({
-                                          username,
-                                          confirmationCode
-                                        }: ConfirmSignUpInput) {
-  try {
-    const { isSignUpComplete, nextStep } = await confirmSignUp({
-      username,
-      confirmationCode
-    });
-    
-    console.log(isSignUpComplete);
-    console.log(nextStep);
-    
-  } catch (error) {
-    console.log('error confirming sign up', error);
-  }
-}
 
 
 const ConfirmCode = () => {
@@ -57,7 +37,7 @@ const ConfirmCode = () => {
   }
   
   const handleConfirm = () => {
-    handleSignUpConfirmation({username, confirmationCode})
+    confirm({username, confirmationCode})
       .then(
         () => navigate('/login')
       )

@@ -7,4 +7,5 @@ public interface AuthService {
     SignInResponse login(String username, String password);
 
     void confirmSignUp(String username, String code);
+
 }

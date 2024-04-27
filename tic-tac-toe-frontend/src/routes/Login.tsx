@@ -1,3 +1,4 @@
+import { signIn } from '@/api/AuthApiClient.ts';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,24 +11,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Formik, Form, Field } from 'formik';
-import { signIn, type SignInInput } from 'aws-amplify/auth';
 import { useNavigate } from 'react-router-dom';
-
-async function handleSignIn({ username, password }: SignInInput) {
-  try {
-    const { isSignedIn, nextStep } = await signIn({ username, password });
-    
-    console.log(isSignedIn);
-    console.log(nextStep);
-  } catch (error) {
-    console.log('error signing in', error);
-  }
-}
 
 const Login = () => {
   
   const navigate = useNavigate();
-  
   
   return (
     <div className={'flex justify-center'}>
@@ -40,10 +28,10 @@ const Login = () => {
           <Formik
             initialValues={{ username: '', password: '' }}
             onSubmit={(values, { setSubmitting }) => {
-              handleSignIn({
-                username: values.username,
-                password: values.password
-              }).then(() => {
+              signIn(
+                values.username,
+                values.password
+              ).then(() => {
                 navigate('/game', {state: {username: values.username}});
               })
               setSubmitting(false);

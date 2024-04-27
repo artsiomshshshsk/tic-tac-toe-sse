@@ -1,6 +1,6 @@
 package com.artsiomshshshsk.tictactoebackend.game;
 
-
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,15 +19,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST})
-public class GameController {
+public class GameController implements AuthAcknowledged{
 
     Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     Set<String> waitingPlayers = ConcurrentHashMap.newKeySet();
     Map<Long, Game> games = new ConcurrentHashMap<>();
 
 
-    @GetMapping("/subscribe/{username}")
-    public SseEmitter subscribe(@PathVariable String username) {
+    @GetMapping("/subscribe")
+    public SseEmitter subscribe() {
+
+        var username = getUserName();
+        System.out.println("username: " + username);
 
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         emitters.put(username, emitter);
@@ -65,8 +68,9 @@ public class GameController {
     public ResponseEntity<?> move(@PathVariable long gameId, @RequestBody MoveRequest request) {
         log.info("Move request: {}, gameID: {}", request, gameId);
         Game game = games.get(gameId);
+        String username = getUserName();
         try {
-            game.makeMove(request.y(),request.x(), request.playerName());
+            game.makeMove(request.y(),request.x(), username);
         } catch (IllegalMoveException e) {
             log.info("Illegal move: {}", e.getMessage());
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), org.springframework.http.HttpStatus.BAD_REQUEST);
@@ -76,10 +80,9 @@ public class GameController {
 
     public record GameEvent(GameStatus event, Game.Cell[][] board, String winner, String currentPlayer, long gameId) {}
 
-    public record MoveRequest(int x, int y, String playerName) { }
+    public record MoveRequest(int x, int y) { }
 
     public enum GameStatus {GAME_STARTED, GAME_UPDATED, GAME_ENDED, ILLEGAL_MOVE}
 
     public record ErrorResponse(String message) { }
-
 }

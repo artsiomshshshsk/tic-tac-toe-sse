@@ -1,5 +1,5 @@
 import React from 'react';
-import {Cell} from "../api/Api.ts";
+import {Cell} from "../api/GameApiClient.ts";
 
 
 // Type for the props

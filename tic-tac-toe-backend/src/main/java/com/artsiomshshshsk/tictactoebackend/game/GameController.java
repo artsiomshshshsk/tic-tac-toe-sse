@@ -1,4 +1,4 @@
-package com.artsiomshshshsk.tictactoebackend;
+package com.artsiomshshshsk.tictactoebackend.game;
 
 
 import lombok.AccessLevel;

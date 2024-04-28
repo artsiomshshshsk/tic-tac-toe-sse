@@ -1,5 +1,6 @@
 import '../App.css'
 import { Button } from '@/components/ui/button.tsx';
+import { EventSourcePolyfill } from 'ng-event-source';
 import { useLocation } from 'react-router-dom';
 import {useEffect, useState} from "react";
 import {Cell, GameEvent, makeMove, subscribe} from "../api/GameApiClient.ts";
@@ -20,7 +21,7 @@ function App() {
     const location = useLocation();
     const { username } = location.state || {};
     
-    const [eventSource, setEventSource] = useState<undefined|EventSource>(undefined);
+    const [eventSource, setEventSource] = useState<undefined|EventSourcePolyfill>(undefined);
     const [step, setStep] = useState<Step>(Step.START);
     const [gameId, setGameId] = useState<number | undefined>(undefined);
     const [currentPlayer, setCurrentPlayer] = useState<string | undefined>(undefined);

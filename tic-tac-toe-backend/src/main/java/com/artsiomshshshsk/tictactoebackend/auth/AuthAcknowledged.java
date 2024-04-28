@@ -1,4 +1,4 @@
-package com.artsiomshshshsk.tictactoebackend.game;
+package com.artsiomshshshsk.tictactoebackend.auth;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

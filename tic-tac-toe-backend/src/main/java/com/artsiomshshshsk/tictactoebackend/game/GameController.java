@@ -1,6 +1,6 @@
 package com.artsiomshshshsk.tictactoebackend.game;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.artsiomshshshsk.tictactoebackend.auth.AuthAcknowledged;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST})
-public class GameController implements AuthAcknowledged{
+public class GameController implements AuthAcknowledged {
 
     Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     Set<String> waitingPlayers = ConcurrentHashMap.newKeySet();

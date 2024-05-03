@@ -27,6 +27,13 @@ public record AuthController(AuthService authService) {
         return authService.refreshToken(request.refreshToken);
     }
 
+    @PostMapping("/sign-out")
+    public void signOut(@RequestBody SignOutRequest request) {
+        authService.signOut(request.accessToken);
+    }
+
+    public record SignOutRequest(String accessToken) { }
+
     public record RefreshTokenRequest(String refreshToken) { }
 
     public record SignUpRequest(String username, String password, String email) { }

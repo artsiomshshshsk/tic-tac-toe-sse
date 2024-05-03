@@ -36,6 +36,8 @@ public class GameController implements AuthAcknowledged {
         emitters.put(username, emitter);
         waitingPlayers.add(username);
 
+        log.info("Waiting players: {}", waitingPlayers);
+
         emitter.onCompletion(() -> emitters.remove(username));
         emitter.onTimeout(() -> emitters.remove(username));
         emitter.onError((e) -> emitters.remove(username));

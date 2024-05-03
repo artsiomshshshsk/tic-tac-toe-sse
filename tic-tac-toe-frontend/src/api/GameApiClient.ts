@@ -1,3 +1,4 @@
+import { refreshToken } from '@/api/AuthApiClient.ts';
 import { EventSourcePolyfill } from 'ng-event-source';
 
 const API_URL = '/api';
@@ -13,16 +14,33 @@ export interface GameEvent {
     currentPlayer: string;
     gameId: number;
 }
+
+
 export const subscribe = (onEvent: (event: GameEvent) => void) => {
-    const token = getAuthToken();
-    const eventSource = new EventSourcePolyfill(`${API_URL}/subscribe`,
-      {
-          headers: { Authorization: `Bearer ${token}`}
-      });
+    const eventSource = new EventSourcePolyfill(`${API_URL}/subscribe`, {
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
+    });
+    
     eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
         onEvent(data);
     }
+    
+    eventSource.onerror = (error) => {
+        if (error.status === 401) {
+            refreshToken()
+              .then(() => {
+                  // After successful token refresh, re-subscribe with the new token
+                  eventSource.close();
+                  subscribe(onEvent);
+              })
+              .catch((error) => {
+                  console.error('Failed to refresh token:', error);
+                  // Handle failed token refresh
+              });
+        }
+    }
+    
     return eventSource;
 }
 
@@ -43,12 +61,22 @@ export async function makeMove(gameId: number, move: MoveRequest): Promise<void>
         },
         body: JSON.stringify(move),
     });
-
+    
     if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        if (response.status === 401) {
+            try {
+                await refreshToken();
+                // Retry the request with the new access token
+                return makeMove(gameId, move);
+            } catch (error) {
+                // Handle failed token refresh
+                throw new Error('Failed to refresh token');
+            }
+        } else {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
     }
 }
-
 
 
 function getAuthToken() {

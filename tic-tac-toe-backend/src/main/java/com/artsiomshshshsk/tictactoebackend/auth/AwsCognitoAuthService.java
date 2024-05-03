@@ -71,4 +71,13 @@ public record AwsCognitoAuthService(
 
         return new SignInResponse(authResult.getAccessToken(), authResult.getRefreshToken());
     }
+
+    @Override
+    public void signOut(String accessToken) {
+        log.info("Signing out user");
+        GlobalSignOutRequest signOutRequest = new GlobalSignOutRequest()
+                .withAccessToken(accessToken);
+        client.globalSignOut(signOutRequest);
+        log.info("User signed out");
+    }
 }

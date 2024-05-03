@@ -1,30 +1,44 @@
+import { logout } from '@/api/AuthApiClient.ts';
+import { Button } from '@/components/ui/button.tsx';
 import {
   NavigationMenu,
   NavigationMenuLink,
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Link } from 'react-router-dom';
+import { toast } from '@/components/ui/use-toast.ts';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  
+  const navigate = useNavigate();
+  
+  const accessToken = localStorage.getItem('accessToken');
+  const authenticated = !!accessToken;
+  
   return <NavigationMenu>
     <div className={'flex justify-between'}>
       <NavigationMenuList>
         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
           <Link to="/">Home</Link>
         </NavigationMenuLink>
-        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+        { authenticated && <NavigationMenuLink className={navigationMenuTriggerStyle()}>
           <Link to="/game">Game</Link>
-        </NavigationMenuLink>
-        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+        </NavigationMenuLink>}
+        {!authenticated && <NavigationMenuLink className={navigationMenuTriggerStyle()}>
           <Link to="/login">Sign-in</Link>
-        </NavigationMenuLink>
+        </NavigationMenuLink>}
       </NavigationMenuList>
-      <NavigationMenuList>
-        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-          <Link to="/logout">Logout</Link>
-        </NavigationMenuLink>
-      </NavigationMenuList>
+      {authenticated && <Button onClick={() => {
+        logout().then(() => {
+          navigate('/login');
+        }).catch(() => {
+          toast({
+            title: "Something went wrong",
+            description: "Please try again",
+          })
+        })
+      }}>Logout</Button>}
     </div>
   </NavigationMenu>;
 };

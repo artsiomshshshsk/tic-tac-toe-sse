@@ -1,7 +1,8 @@
 import '../App.css'
 import {Button} from '@/components/ui/button.tsx';
+import useAuthenticated from '@/hooks/useAuthenticated.ts';
 import {EventSourcePolyfill} from 'ng-event-source';
-import {useLocation} from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import {useEffect, useState} from "react";
 import {Cell, GameEvent, makeMove, subscribe} from "../api/GameApiClient.ts";
 import Board from "../components/Board.tsx";
@@ -11,7 +12,8 @@ import {Step} from "@/routes/Step.tsx";
 function Game() {
 
     const location = useLocation();
-    const { username } = location.state || {};
+    useAuthenticated();
+    const { username } = location.state || { username: localStorage.getItem('username') };
     
     const [eventSource, setEventSource] = useState<undefined|EventSourcePolyfill>(undefined);
     const [step, setStep] = useState<Step>(Step.START);
@@ -21,7 +23,9 @@ function Game() {
     const [winner, setWinner] = useState<string | undefined>(undefined);
 
     const myTurn = currentPlayer === username;
-
+    
+    console.log("Username: ", username);
+    console.log("currentPlayer: ", currentPlayer);
 
     useEffect(() => {
         return () => {
@@ -70,7 +74,7 @@ function Game() {
   
 
     if(step === Step.START) {
-        return <div className={"App"}>
+        return <div className={"App mt-60"}>
             <h1>Hi {username}! Press button to start playing with random opponent</h1>
             <Button onClick={handleFindGame}>Find game</Button>
         </div>

@@ -1,23 +1,15 @@
 import '../App.css'
-import { Button } from '@/components/ui/button.tsx';
-import { EventSourcePolyfill } from 'ng-event-source';
-import { useLocation } from 'react-router-dom';
+import {Button} from '@/components/ui/button.tsx';
+import {EventSourcePolyfill} from 'ng-event-source';
+import {useLocation} from 'react-router-dom';
 import {useEffect, useState} from "react";
 import {Cell, GameEvent, makeMove, subscribe} from "../api/GameApiClient.ts";
 import Board from "../components/Board.tsx";
+import {Step} from "@/routes/Step.tsx";
 
 
-export enum Step {
-    START,
-    WAITING,
-    GAME,
-    END
-}
+function Game() {
 
-function App() {
-
-    // const [username, setUsername] = useState<string | undefined>(undefined);
-    
     const location = useLocation();
     const { username } = location.state || {};
     
@@ -115,4 +107,4 @@ function App() {
     }
 }
 
-export default App
+export default Game

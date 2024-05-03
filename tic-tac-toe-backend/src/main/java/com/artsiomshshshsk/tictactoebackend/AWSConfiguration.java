@@ -1,8 +1,6 @@
 package com.artsiomshshshsk.tictactoebackend;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.auth.*;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.artsiomshshshsk.tictactoebackend.auth.CognitoClientConfig;
@@ -14,27 +12,24 @@ import org.springframework.context.annotation.Configuration;
 public class AWSConfiguration {
 
     @Bean
-    public AWSCognitoIdentityProvider cognitoIdentityProvider(AWSCredentials credentials,
+    public AWSCredentialsProvider amazonAWSCredentialsProvider() {
+        return DefaultAWSCredentialsProviderChain.getInstance();
+    }
+
+    @Bean
+    public AWSCognitoIdentityProvider cognitoIdentityProvider(AWSCredentialsProvider credentialsProvider,
                                                               CognitoClientConfig config) {
 
         return AWSCognitoIdentityProviderClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withCredentials(credentialsProvider)
                 .withRegion(config.region())
                 .build();
     }
-
 
     @Bean
     CognitoClientConfig cognitoClientConfig(@Value("${AWS_COGNITO_CLIENT_ID}") String clientId,
                                             @Value("${AWS_COGNITO_USER_POOL_ID}") String userPoolId,
                                             @Value("${AWS_REGION}") String region){
         return new CognitoClientConfig(clientId, userPoolId, region);
-    }
-
-    @Bean
-    AWSCredentials credentials(@Value("${AWS_ACCESS_KEY_ID}") String accessKeyId,
-                               @Value("${AWS_SECRET_ACCESS_KEY}") String secretAccessKey,
-                               @Value("${AWS_SESSION_TOKEN}") String sessionToken) {
-        return new BasicSessionCredentials(accessKeyId, secretAccessKey, sessionToken);
     }
 }

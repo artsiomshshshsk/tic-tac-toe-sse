@@ -30,19 +30,16 @@ public record AwsCognitoAuthService(
     @Override
     public SignInResponse login(String username, String password) {
         log.info("Logging in user with username: {}", username);
-        AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest()
-                .withAuthFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
-                .withUserPoolId(config.userPoolId())
+        var user_password_auth = new InitiateAuthRequest()
+                .withAuthFlow(AuthFlowType.USER_PASSWORD_AUTH)
                 .withClientId(config.clientId())
                 .withAuthParameters(Map.of(
                         "USERNAME", username,
                         "PASSWORD", password
                 ));
-        AdminInitiateAuthResult authResponse = client.adminInitiateAuth(authRequest);
-        AuthenticationResultType authResult = authResponse.getAuthenticationResult();
-
+        var authResponse = client.initiateAuth(user_password_auth);
+        var authResult = authResponse.getAuthenticationResult();
         log.info("User logged in: {}", authResult);
-
         return new SignInResponse(authResult.getAccessToken(), authResult.getRefreshToken());
     }
 
@@ -55,5 +52,23 @@ public record AwsCognitoAuthService(
                 .withClientId(config.clientId());
         client.confirmSignUp(confirmSignUpRequest);
         log.info("User confirmed sign up");
+    }
+
+    @Override
+    public SignInResponse refreshToken(String refreshToken) {
+        log.info("Refreshing token");
+        AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest()
+                .withAuthFlow(AuthFlowType.REFRESH_TOKEN_AUTH)
+                .withUserPoolId(config.userPoolId())
+                .withClientId(config.clientId())
+                .withAuthParameters(Map.of(
+                        "REFRESH_TOKEN", refreshToken
+                ));
+        AdminInitiateAuthResult authResponse = client.adminInitiateAuth(authRequest);
+        AuthenticationResultType authResult = authResponse.getAuthenticationResult();
+
+        log.info("Token refreshed: {}", authResult);
+
+        return new SignInResponse(authResult.getAccessToken(), authResult.getRefreshToken());
     }
 }

@@ -22,6 +22,13 @@ public record AuthController(AuthService authService) {
         authService.confirmSignUp(request.username, request.confirmationCode);
     }
 
+    @PostMapping("refresh-token")
+    public SignInResponse refreshToken(@RequestBody RefreshTokenRequest request) {
+        return authService.refreshToken(request.refreshToken);
+    }
+
+    public record RefreshTokenRequest(String refreshToken) { }
+
     public record SignUpRequest(String username, String password, String email) { }
 
     public record SignInRequest(String username, String password) { }

@@ -1,75 +1,29 @@
 import { confirm } from '@/api/AuthApiClient.ts';
-import { Button } from '@/components/ui/button.tsx';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "@/components/ui/input-otp"
-import { useState } from 'react';
+import ConfirmCodeForm from '@/components/form/ConfirmCodeForm.tsx';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-
+import { useToast } from "@/components/ui/use-toast"
 
 const ConfirmCode = () => {
   
   const location = useLocation();
   const { username } = location.state || {};
-  
   const navigate = useNavigate();
+  const { toast } = useToast()
   
-  
-  const [confirmationCode, setConfirmationCode] = useState('');
-  const [confirmationCodeReady, setConfirmationCodeReady] = useState(false);
-  
-  const handleCodeChange = (code: string) => {
-    setConfirmationCode(code);
-    setConfirmationCodeReady(code.length === 6);
-  }
-  
-  const handleConfirm = () => {
+  const handleConfirm = (confirmationCode: string) => {
     confirm({username, confirmationCode})
       .then(
         () => navigate('/login')
-      )
+      ).catch(() => {
+        toast({
+          title: "Something went wrong",
+          description: "Please try again",
+        })
+      }
+    )
   }
   
-  
-  return (
-    <div className={'flex justify-center'}>
-      <Card className="flex justify-center flex-col w-[450px] my-52">
-        <CardHeader>
-          <CardTitle>Confirm Email</CardTitle>
-          <CardDescription>You need to confirm sign up, a code has been sent to their email</CardDescription>
-        </CardHeader>
-        <CardContent className={'flex justify-center'}>
-          <InputOTP maxLength={6} onChange={handleCodeChange} value={confirmationCode}>
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-            </InputOTPGroup>
-            <InputOTPSeparator />
-            <InputOTPGroup>
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
-          <Button className={'ml-5'} disabled={!confirmationCodeReady} onClick={handleConfirm}>Confirm</Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return <ConfirmCodeForm onSubmit={handleConfirm}/>
 };
 
 export default ConfirmCode;

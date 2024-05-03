@@ -8,4 +8,5 @@ public interface AuthService {
 
     void confirmSignUp(String username, String code);
 
+    SignInResponse refreshToken(String refreshToken);
 }

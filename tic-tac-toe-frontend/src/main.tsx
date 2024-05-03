@@ -1,36 +1,17 @@
-import ErrorPage from '@/error-page.tsx';
-import ConfirmCode from '@/routes/ConfirmCode.tsx';
-import Login from '@/routes/Login.tsx';
-import Register from '@/routes/Register.tsx';
+import App from '@/App.tsx';
+import { Toaster } from '@/components/ui/toaster.tsx';
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import App from './routes/App.tsx'
+import { BrowserRouter } from 'react-router-dom';
 import './index.css'
 
 
-const router = createBrowserRouter([
-  {
-    path: "/game",
-    element: <App />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: "/register",
-    element: <Register />,
-  },
-  {
-    path: "/confirm",
-    element: <ConfirmCode />,
-  },
-  {
-    path: 'login',
-    element: <Login />,
-  },
-]);
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+    <Toaster />
   </React.StrictMode>,
 )

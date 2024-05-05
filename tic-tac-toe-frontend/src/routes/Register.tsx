@@ -11,10 +11,10 @@ const Register = () => {
   const onSubmit = (username: string, email: string, password: string) => {
     signUp(username, email, password)
       .then(() => navigate('/confirm', { state: {username} }))
-      .catch(() => {
+      .catch((error: Error) => {
         toast({
-          title: "Something went wrong",
-          description: "Please try again",
+          title: "Something went wrong. Please try again",
+          description: error.message,
         })
       })
   }

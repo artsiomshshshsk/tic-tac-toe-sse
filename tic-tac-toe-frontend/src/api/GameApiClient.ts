@@ -15,8 +15,13 @@ export interface GameEvent {
     gameId: number;
 }
 
+interface EventSourceErrorEvent extends Event {
+    errorCode: number;
+    errorMessage: string;
+}
 
-export const subscribe = (onEvent: (event: GameEvent) => void) => {
+
+export const subscribe = (onEvent: (event: GameEvent) => void, retries = 0) => {
     const eventSource = new EventSourcePolyfill(`${API_URL}/subscribe`, {
         headers: { Authorization: `Bearer ${getAuthToken()}` }
     });
@@ -26,23 +31,24 @@ export const subscribe = (onEvent: (event: GameEvent) => void) => {
         onEvent(data);
     }
     
-    eventSource.onerror = (error: { status: number; }) => {
-        if (error.status === 401) {
+    eventSource.onerror = (error: EventSourceErrorEvent) => {
+        if (error.errorCode === 401 && retries < 3) { // Limit to 3 retries
             refreshToken()
               .then(() => {
-                  // After successful token refresh, re-subscribe with the new token
                   eventSource.close();
-                  subscribe(onEvent);
+                  setTimeout(() => subscribe(onEvent, retries + 1), 1000 * retries); // Exponential backoff
               })
               .catch((error) => {
                   console.error('Failed to refresh token:', error);
-                  // Handle failed token refresh
               });
+        } else {
+            console.error('Non-retryable error or max retries reached', error);
+            eventSource.close();
         }
     }
-    
     return eventSource;
 }
+
 
 interface MoveRequest {
     x: number;

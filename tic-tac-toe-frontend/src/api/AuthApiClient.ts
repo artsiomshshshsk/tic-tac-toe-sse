@@ -44,9 +44,8 @@ export const refreshToken = async () => {
     return;
   }
   
-  
   try {
-    const response = await apiClient.post('/refresh-token', { refreshTokenSaved });
+    const response = await apiClient.post('/refresh-token', { refreshToken: refreshTokenSaved });
     const { accessToken, refreshToken } = response.data;
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);

@@ -14,10 +14,10 @@ const ConfirmCode = () => {
     confirm({username, confirmationCode})
       .then(
         () => navigate('/login')
-      ).catch(() => {
+      ).catch((error: Error) => {
         toast({
-          title: "Something went wrong",
-          description: "Please try again",
+          title: "Something went wrong. Please try again",
+          description: error.message,
         })
       }
     )

@@ -26,7 +26,7 @@ export const subscribe = (onEvent: (event: GameEvent) => void) => {
         onEvent(data);
     }
     
-    eventSource.onerror = (error) => {
+    eventSource.onerror = (error: { status: number; }) => {
         if (error.status === 401) {
             refreshToken()
               .then(() => {

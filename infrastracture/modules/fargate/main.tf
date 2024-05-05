@@ -2,7 +2,7 @@ locals {
   container_definitions = jsonencode([
     {
       name         = "backend"
-      image        = "artsiomshshshsk/cloud-programming-lab:tic-tac-toe-back-fargate"
+      image        = "artsiomshshshsk/cloud-programming-lab:tic-tac-toe-back"
       essential    = true //the task will stop if this container fails.
       portMappings = [
         {
@@ -19,10 +19,24 @@ locals {
           "awslogs-stream-prefix" = "backend"
         }
       }
+      environment = [
+        {
+          name  = "AWS_COGNITO_CLIENT_ID"
+          value = var.cognito_user_pool_client_id
+        },
+        {
+          name  = "AWS_COGNITO_USER_POOL_ID"
+          value = var.cognito_user_pool_id
+        },
+        {
+          name  = "AWS_REGION"
+          value = var.cognito_user_pool_region
+        }
+      ]
     },
     {
       name         = "frontend"
-      image        = "artsiomshshshsk/cloud-programming-lab:tic-tac-toe-front-fargate"
+      image        = "artsiomshshshsk/cloud-programming-lab:tic-tac-toe-front"
       essential    = true
       portMappings = [
         {

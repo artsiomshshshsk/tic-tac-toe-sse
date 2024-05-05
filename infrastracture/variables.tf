@@ -38,5 +38,5 @@ variable "beanstalk_deployment" {
 variable "fargate_deployment" {
   description = "Fargate deployment"
   type        = bool
-  default     = false
+  default     = true
 }

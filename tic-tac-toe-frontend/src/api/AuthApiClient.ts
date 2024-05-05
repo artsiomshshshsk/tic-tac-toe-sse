@@ -39,21 +39,19 @@ export const logout = async () => {
 
 
 export const refreshToken = async () => {
-  const refreshToken = localStorage.getItem('refreshToken');
-  if (!refreshToken) {
+  const refreshTokenSaved = localStorage.getItem('refreshToken');
+  if (!refreshTokenSaved) {
     return;
   }
   
-  console.log('Refreshing token');
   
   try {
-    const response = await api.post('/refresh-token', { refreshToken });
+    const response = await apiClient.post('/refresh-token', { refreshTokenSaved });
     const { accessToken, refreshToken } = response.data;
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
   } catch (error) {
     console.error('Token refresh failed:', error);
-    // handle logout or redirect to login
   }
 };
 

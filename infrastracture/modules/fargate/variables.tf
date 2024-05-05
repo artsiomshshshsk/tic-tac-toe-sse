@@ -32,3 +32,19 @@ variable "assign_public_ip" {
   description = "Assign a public IP address to the ECS tasks"
   type        = bool
 }
+
+
+variable "cognito_user_pool_id" {
+  description = "The user pool ID"
+  type        = string
+}
+
+variable "cognito_user_pool_client_id" {
+  description = "The user pool client ID"
+  type        = string
+}
+
+variable "cognito_user_pool_region" {
+  description = "The user pool region"
+  type        = string
+}

@@ -38,5 +38,19 @@ variable "beanstalk_deployment" {
 variable "fargate_deployment" {
   description = "Fargate deployment"
   type        = bool
+  default     = false
+}
+
+variable "infrastructure_deployment" {
+  description = "Infrastructure deployment (security groups, vpc, subnets, etc)"
+  type        = bool
+  default     = false
+}
+
+variable "cognito_deployment" {
+  description = "Cognito deployment"
+  type        = bool
   default     = true
 }
+
+

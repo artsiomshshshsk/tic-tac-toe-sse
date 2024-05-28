@@ -27,3 +27,18 @@ variable "instance_name" {
 variable "subnet_id" {
   description = "The ID of the subnet to launch the instance in"
 }
+
+variable "cognito_user_pool_id" {
+  description = "The user pool ID"
+  type        = string
+}
+
+variable "cognito_user_pool_client_id" {
+  description = "The user pool client ID"
+  type        = string
+}
+
+variable "cognito_user_pool_region" {
+  description = "The user pool region"
+  type        = string
+}

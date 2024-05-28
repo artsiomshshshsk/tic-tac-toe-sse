@@ -25,7 +25,7 @@ variable "ec2-ami" {
 variable "ec2_deployment" {
   description = "EC2 deployment"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "beanstalk_deployment" {
@@ -34,23 +34,8 @@ variable "beanstalk_deployment" {
   default     = false
 }
 
-
 variable "fargate_deployment" {
   description = "Fargate deployment"
   type        = bool
-  default     = true
-}
-
-variable "infrastructure_deployment" {
-  description = "Infrastructure deployment (security groups, vpc, subnets, etc)"
-  type        = bool
   default     = false
 }
-
-variable "cognito_deployment" {
-  description = "Cognito deployment"
-  type        = bool
-  default     = true
-}
-
-

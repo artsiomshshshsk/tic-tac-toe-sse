@@ -42,3 +42,9 @@ variable "cognito_user_pool_region" {
   description = "The user pool region"
   type        = string
 }
+
+variable "notification_email" {
+  description = "The email address to send notifications to"
+  type        = string
+  default     = "artsiomshablinskiy@gmail.com"
+}

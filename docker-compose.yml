@@ -5,10 +5,8 @@ name: tic-tac-toe
 services:
   backend:
     image: artsiomshshshsk/cloud-programming-lab:tic-tac-toe-back
-    environment:
-      - AWS_COGNITO_CLIENT_ID=${AWS_COGNITO_CLIENT_ID}
-      - AWS_COGNITO_USER_POOL_ID=${AWS_COGNITO_USER_POOL_ID}
-      - AWS_REGION=${AWS_REGION}
+    env_file:
+      - .env
     ports:
       - "8081:8081"
 

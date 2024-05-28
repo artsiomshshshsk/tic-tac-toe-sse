@@ -35,9 +35,15 @@ resource "aws_instance" "app_instance" {
 
               docker -v
 
-              export AWS_COGNITO_CLIENT_ID=${var.cognito_user_pool_client_id}
-              export AWS_COGNITO_USER_POOL_ID=${var.cognito_user_pool_id}
-              export AWS_REGION=${var.cognito_user_pool_region}
+              echo "Creating .env file"
+
+              touch .env
+              echo "AWS_COGNITO_CLIENT_ID=${var.cognito_user_pool_client_id}" >> .env
+              echo "AWS_COGNITO_USER_POOL_ID=${var.cognito_user_pool_id}" >> .env
+              echo "AWS_REGION=${var.cognito_user_pool_region}" >> .env
+
+              echo "Contents of .env file:"
+              cat .env
 
               echo "Downloading docker-compose.yml"
 

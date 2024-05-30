@@ -30,6 +30,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.amazonaws:aws-java-sdk-cognitoidp:1.12.709")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 }
 
 tasks.withType<Test> {

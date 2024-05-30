@@ -18,7 +18,7 @@ public class SecurityConfiguration {
                 .oauth2ResourceServer(c -> c.jwt(Customizer.withDefaults()))
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/auth/**", "/actuator/**", "/load-cpu").permitAll()
                                 .anyRequest().authenticated()
                 ).build();
     }

@@ -46,7 +46,6 @@ module "ec2" {
   ami               = var.ec2-ami
   instance_type     = "t2.micro"
   key_name          = aws_key_pair.deployer.key_name
-  user_data_path    = "./setup-script.sh"
   security_group_id = module.security.security_group_id
   subnet_id         = module.networking.subnet_id
   cognito_user_pool_client_id = module.cognito.client_id

@@ -11,10 +11,6 @@ variable "key_name" {
   description = "The key name to use for the instance"
 }
 
-variable "user_data_path" {
-  description = "Path to the user data script"
-}
-
 variable "security_group_id" {
   description = "The ID of the security group to associate with the instance"
 }

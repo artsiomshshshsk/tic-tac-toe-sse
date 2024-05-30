@@ -1,6 +1,14 @@
 resource "aws_cognito_user_pool" "tic-tac-toe-user-pool" {
   name                     = var.user_pool_name
   auto_verified_attributes = ["email"]
+
+  password_policy {
+    minimum_length    = 6
+    require_lowercase = false
+    require_numbers   = false
+    require_symbols   = false
+    require_uppercase = false
+  }
 }
 
 resource "aws_cognito_user_pool_client" "tic-tac-toe-user-pool-client" {
@@ -17,4 +25,27 @@ resource "aws_cognito_user_pool_client" "tic-tac-toe-user-pool-client" {
 resource "aws_cognito_user_pool_domain" "tic-tac-toe-user-pool-domain" {
   domain       = var.user_pool_domain_name
   user_pool_id = aws_cognito_user_pool.tic-tac-toe-user-pool.id
+}
+
+
+resource "aws_cognito_user" "user1" {
+  user_pool_id = aws_cognito_user_pool.tic-tac-toe-user-pool.id
+  username     = "user1"
+  password     = "password1"
+
+  attributes = {
+    email          = "email1@google.com"
+    email_verified = true
+  }
+}
+
+resource "aws_cognito_user" "user2" {
+  user_pool_id = aws_cognito_user_pool.tic-tac-toe-user-pool.id
+  username     = "user2"
+  password     = "password2"
+
+  attributes = {
+    email          = "email2@google.com"
+    email_verified = true
+  }
 }

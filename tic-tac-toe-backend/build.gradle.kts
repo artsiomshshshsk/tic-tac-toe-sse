@@ -27,6 +27,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
+    implementation("org.apache.commons:commons-math3:3.6.1")
+
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.amazonaws:aws-java-sdk-cognitoidp:1.12.709")

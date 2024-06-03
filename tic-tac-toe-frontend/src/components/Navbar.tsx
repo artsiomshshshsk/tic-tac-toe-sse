@@ -16,8 +16,16 @@ const Navbar = () => {
   const accessToken = localStorage.getItem('accessToken');
   const authenticated = !!accessToken;
   
+  const handleLoadCPU = async () => {
+    await fetch(`api/load-cpu`, {
+      method: 'GET'
+    });
+    console.log('CPU loaded');
+  }
+  
   return <NavigationMenu>
     <div className={'flex justify-between'}>
+      <Button className={'mr-14'} onClick={handleLoadCPU}>Load CPU</Button>
       <NavigationMenuList>
         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
           <Link to="/">Home</Link>

@@ -71,7 +71,7 @@ resource "aws_lb_target_group" "app_tg" {
   health_check {
     enabled             = true
     interval            = 30
-    path                = "/actuator/health"
+    path                = "/api/actuator/health"
     timeout             = 5
     healthy_threshold   = 5
     unhealthy_threshold = 10

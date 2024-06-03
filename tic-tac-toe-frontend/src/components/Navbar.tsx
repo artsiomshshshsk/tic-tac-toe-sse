@@ -23,9 +23,23 @@ const Navbar = () => {
     console.log('CPU loaded');
   }
   
+  const handleHealthDown = async () => {
+    await fetch(`api/healthDown`, {
+      method: 'GET'
+    });
+  }
+  
+  const handleHealthUp = async () => {
+    await fetch(`api/healthUp`, {
+      method: 'GET'
+    });
+  }
+  
   return <NavigationMenu>
     <div className={'flex justify-between'}>
       <Button className={'mr-14'} onClick={handleLoadCPU}>Load CPU</Button>
+      <Button className={'mr-14'} onClick={handleHealthUp}>Health Up</Button>
+      <Button className={'mr-14'} onClick={handleHealthDown}>Health Down</Button>
       <NavigationMenuList>
         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
           <Link to="/">Home</Link>

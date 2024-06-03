@@ -70,11 +70,11 @@ resource "aws_lb_target_group" "app_tg" {
 
   health_check {
     enabled             = true
-    interval            = 30
+    interval            = 10
     path                = "/api/actuator/health"
     timeout             = 5
-    healthy_threshold   = 5
-    unhealthy_threshold = 10
+    healthy_threshold   = 6
+    unhealthy_threshold = 2
     matcher             = "200-299"
   }
 
@@ -102,13 +102,13 @@ resource "aws_autoscaling_group" "app_asg" {
     version = "$Latest"
   }
 
-  min_size            = 0
+  min_size            = 1
   max_size            = 3
   desired_capacity    = 1
   vpc_zone_identifier = var.subnet_ids
 
   health_check_type = "ELB"
-  health_check_grace_period = 300 # Grace period in seconds
+  health_check_grace_period = 180 # Grace period in seconds
   target_group_arns = [aws_lb_target_group.app_tg.arn]
 
   tag {
@@ -165,3 +165,54 @@ resource "aws_cloudwatch_metric_alarm" "no_instances_running_alarm" {
   alarm_actions = [aws_sns_topic.cpu_alarm_topic.arn]
   ok_actions    = [aws_sns_topic.cpu_alarm_topic.arn]
 }
+
+
+
+resource "aws_autoscaling_policy" "scale_up_policy" {
+  name                   = "scale-up-policy"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 60
+  autoscaling_group_name = aws_autoscaling_group.app_asg.name
+}
+
+resource "aws_autoscaling_policy" "scale_down_policy" {
+  name                   = "scale-down-policy"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 60
+  autoscaling_group_name = aws_autoscaling_group.app_asg.name
+}
+
+resource "aws_cloudwatch_metric_alarm" "high_cpu_utilization_alarm" {
+  alarm_name          = "high-cpu-utilization-alarm"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "70"  # Scale up if CPU utilization > 70%
+  alarm_description   = "Alarm when CPU utilization is high"
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.app_asg.name
+  }
+  alarm_actions = [aws_autoscaling_policy.scale_up_policy.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "low_cpu_utilization_alarm" {
+  alarm_name          = "low-cpu-utilization-alarm"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "30"  # Scale down if CPU utilization < 30%
+  alarm_description   = "Alarm when CPU utilization is low"
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.app_asg.name
+  }
+  alarm_actions = [aws_autoscaling_policy.scale_down_policy.arn]
+}
+

@@ -36,21 +36,22 @@ module "elastic_beanstalk" {
   instance_type       = "t2.micro"
   key_name            = aws_key_pair.deployer.key_name
   vpc_id              = module.networking.vpc_id
-  subnet_ids          = [module.networking.subnet_id]
+  subnet_ids          = [module.networking.subnet_ids[0]]
   security_group_ids  = [module.security.security_group_id]
 }
 
 module "ec2" {
-  source            = "./modules/ec2_instance"
-  count             = var.ec2_deployment ? 1 : 0
-  ami               = var.ec2-ami
-  instance_type     = "t2.micro"
-  key_name          = aws_key_pair.deployer.key_name
-  security_group_id = module.security.security_group_id
-  subnet_id         = module.networking.subnet_id
+  source                      = "./modules/ec2_instance"
+  count                       = var.ec2_deployment ? 1 : 0
+  ami                         = var.ec2-ami
+  instance_type               = "t2.micro"
+  key_name                    = aws_key_pair.deployer.key_name
+  security_group_id           = module.security.security_group_id
+  subnet_ids                  = module.networking.subnet_ids
   cognito_user_pool_client_id = module.cognito.client_id
   cognito_user_pool_id        = module.cognito.user_pool_id
   cognito_user_pool_region    = var.region
+  vpc_id                      = module.networking.vpc_id
 }
 
 
@@ -61,7 +62,7 @@ module "fargate" {
   cpu                         = "256"
   memory                      = "512"
   desired_count               = 1
-  subnets                     = [module.networking.subnet_id]
+  subnets                     = [module.networking.subnet_ids[0]]
   security_groups             = [module.security.security_group_id]
   assign_public_ip            = true
   cognito_user_pool_client_id = module.cognito.client_id

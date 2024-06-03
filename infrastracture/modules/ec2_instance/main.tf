@@ -6,19 +6,120 @@ locals {
   })
 }
 
+resource "aws_launch_template" "app_launch_template" {
+  name          = "app-launch-template"
+  image_id      = var.ami
+  instance_type = var.instance_type
+  key_name      = var.key_name
 
-resource "aws_instance" "app_instance" {
-  ami                         = var.ami
-  instance_type               = var.instance_type
-  key_name                    = var.key_name
-  vpc_security_group_ids      = [var.security_group_id]
-  subnet_id                   = var.subnet_id
-  associate_public_ip_address = true
+  network_interfaces {
+    security_groups             = [var.security_group_id]
+    associate_public_ip_address = true
+  }
+
+  user_data = base64encode(local.user_data_template)
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = var.instance_name
+    }
+  }
+}
+
+
+resource "aws_security_group" "lb_sg" {
+  name        = "lb-security-group"
+  description = "Security group for the load balancer"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_lb" "app_lb" {
+  name               = "app-lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.lb_sg.id]
+  subnets            = var.subnet_ids
+
+  enable_deletion_protection = false
 
   tags = {
-    Name = var.instance_name
+    Name = "app-lb"
   }
-  user_data = local.user_data_template
+}
+
+resource "aws_lb_target_group" "app_tg" {
+  name     = "app-tg"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+
+  health_check {
+    enabled             = true
+    interval            = 30
+    path                = "/actuator/health"
+    timeout             = 5
+    healthy_threshold   = 5
+    unhealthy_threshold = 10
+    matcher             = "200-299"
+  }
+
+  tags = {
+    Name = "app-tg"
+  }
+}
+
+
+resource "aws_lb_listener" "app_lb_listener" {
+  load_balancer_arn = aws_lb.app_lb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app_tg.arn
+  }
+}
+
+
+resource "aws_autoscaling_group" "app_asg" {
+  launch_template {
+    id      = aws_launch_template.app_launch_template.id
+    version = "$Latest"
+  }
+
+  min_size            = 0
+  max_size            = 3
+  desired_capacity    = 1
+  vpc_zone_identifier = var.subnet_ids
+
+  health_check_type = "ELB"
+  health_check_grace_period = 300 # Grace period in seconds
+  target_group_arns = [aws_lb_target_group.app_tg.arn]
+
+  tag {
+    key                 = "Name"
+    value               = var.instance_name
+    propagate_at_launch = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 
@@ -32,153 +133,35 @@ resource "aws_sns_topic_subscription" "cpu_alarm_subscription" {
   endpoint  = var.notification_email
 }
 
-
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization_alarm" {
-  alarm_name                = "HighCPUUtilization"
-  comparison_operator       = "GreaterThanThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "CPUUtilization"
-  namespace                 = "AWS/EC2"
-  period                    = "10"
-  statistic                 = "Average"
-  threshold                 = "20"
-  alarm_description         = "This alarm monitors EC2 CPU Utilization"
-  alarm_actions             = [aws_sns_topic.cpu_alarm_topic.arn]
-  ok_actions                = [aws_sns_topic.cpu_alarm_topic.arn]
-  insufficient_data_actions = [aws_sns_topic.cpu_alarm_topic.arn]
+  alarm_name          = "cpu-utilization-alarm"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "60"
+  alarm_description   = "This metric monitors the average CPU utilization"
   dimensions = {
-    InstanceId = aws_instance.app_instance.id
+    AutoScalingGroupName = aws_autoscaling_group.app_asg.name
   }
+  alarm_actions = [aws_sns_topic.cpu_alarm_topic.arn]
 }
 
-
-#
-#
-# resource "aws_cloudwatch_metric_alarm" "ec2_instance_status_alarm" {
-#   alarm_name                = "EC2InstanceStatusCheckFailed"
-#   comparison_operator       = "GreaterThanThreshold"
-#   evaluation_periods        = "1"
-#   metric_name               = "StatusCheckFailed"
-#   namespace                 = "AWS/EC2"
-#   period                    = "60"
-#   statistic                 = "Average"
-#   threshold                 = "1"
-#   alarm_description         = "This alarm monitors EC2 instance status checks"
-#   alarm_actions             = [aws_sns_topic.cpu_alarm_topic.arn]
-#   ok_actions                = [aws_sns_topic.cpu_alarm_topic.arn]
-#   insufficient_data_actions = [aws_sns_topic.cpu_alarm_topic.arn]
-#   dimensions = {
-#     InstanceId = aws_instance.app_instance.id
-#   }
-# }
-
-
-
-# resource "aws_launch_template" "app_launch_template" {
-#   name          = "app-launch-template"
-#   image_id      = var.ami
-#   instance_type = var.instance_type
-#   key_name      = var.key_name
-#
-#   network_interfaces {
-#     security_groups             = [var.security_group_id]
-#     associate_public_ip_address = true
-#   }
-#
-#   user_data = base64encode(local.user_data_template)
-#
-#   tag_specifications {
-#     resource_type = "instance"
-#     tags = {
-#       Name = var.instance_name
-#     }
-#   }
-# }
-
-
-# resource "aws_autoscaling_group" "app_asg" {
-#   launch_template {
-#     id      = aws_launch_template.app_launch_template.id
-#     version = "$Latest"
-#   }
-#
-#   min_size            = 1
-#   max_size            = 3
-#   desired_capacity    = 1
-#   vpc_zone_identifier = [var.subnet_id]
-#
-#   tag {
-#     key                 = "Name"
-#     value               = var.instance_name
-#     propagate_at_launch = true
-#   }
-#
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
-
-
-# resource "aws_sns_topic" "scale_alarm_topic" {
-#   name = "scale-alarm-topic"
-# }
-#
-# resource "aws_sns_topic_subscription" "scale_alarm_subscription" {
-#   topic_arn = aws_sns_topic.scale_alarm_topic.arn
-#   protocol  = "email"
-#   endpoint  = var.notification_email
-# }
-
-
-# resource "aws_autoscaling_policy" "scale_up_policy" {
-#   name                   = "scale-up-policy"
-#   scaling_adjustment     = 1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 30
-#   autoscaling_group_name = aws_autoscaling_group.app_asg.name
-# }
-#
-# resource "aws_autoscaling_policy" "scale_down_policy" {
-#   name                   = "scale-down-policy"
-#   scaling_adjustment     = -1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 30
-#   autoscaling_group_name = aws_autoscaling_group.app_asg.name
-# }
-
-
-# resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
-#   alarm_name          = "ScaleUpAlarm"
-#   comparison_operator = "GreaterThanThreshold"
-#   evaluation_periods  = "1"
-#   metric_name         = "CPUUtilization"
-#   namespace           = "AWS/EC2"
-#   period              = "60"
-#   statistic           = "Average"
-#   threshold           = "0"
-#   alarm_description   = "Alarm to scale up instances when CPU utilization is high"
-#   alarm_actions       = [
-#     aws_autoscaling_policy.scale_up_policy.arn,
-#     aws_sns_topic.scale_alarm_topic.arn
-#   ]
-#   dimensions = {
-#     AutoScalingGroupName = aws_autoscaling_group.app_asg.name
-#   }
-# }
-
-
-# resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
-#   alarm_name          = "ScaleDownAlarm"
-#   comparison_operator = "LessThanThreshold"
-#   evaluation_periods  = "1"
-#   metric_name         = "CPUUtilization"
-#   namespace           = "AWS/EC2"
-#   period              = "60"
-#   statistic           = "Average"
-#   threshold           = "1"
-#   alarm_description   = "Alarm to scale down instances when CPU utilization is low"
-#   alarm_actions       = [aws_autoscaling_policy.scale_down_policy.arn]
-#   dimensions = {
-#     AutoScalingGroupName = aws_autoscaling_group.app_asg.name
-#   }
-# }
+resource "aws_cloudwatch_metric_alarm" "no_instances_running_alarm" {
+  alarm_name          = "no-instances-running-alarm"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "GroupInServiceInstances"
+  namespace           = "AWS/AutoScaling"
+  period              = "60"
+  statistic           = "Minimum"
+  threshold           = "1"
+  alarm_description   = "Alarm when no instances are running in the Auto Scaling group"
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.app_asg.name
+  }
+  alarm_actions = [aws_sns_topic.cpu_alarm_topic.arn]
+  ok_actions    = [aws_sns_topic.cpu_alarm_topic.arn]
+}

@@ -103,12 +103,12 @@ resource "aws_autoscaling_group" "app_asg" {
   }
 
   min_size            = 1
-  max_size            = 3
+  max_size            = 10
   desired_capacity    = 1
   vpc_zone_identifier = var.subnet_ids
 
   health_check_type = "ELB"
-  health_check_grace_period = 180 # Grace period in seconds
+  health_check_grace_period = 60 # Grace period in seconds
   target_group_arns = [aws_lb_target_group.app_tg.arn]
 
   tag {
@@ -120,8 +120,9 @@ resource "aws_autoscaling_group" "app_asg" {
   lifecycle {
     create_before_destroy = true
   }
-}
 
+  enabled_metrics = ["GroupInServiceInstances"]
+}
 
 resource "aws_sns_topic" "cpu_alarm_topic" {
   name = "cpu-alarm-topic"
@@ -167,7 +168,6 @@ resource "aws_cloudwatch_metric_alarm" "no_instances_running_alarm" {
 }
 
 
-
 resource "aws_autoscaling_policy" "scale_up_policy" {
   name                   = "scale-up-policy"
   scaling_adjustment     = 1
@@ -197,7 +197,10 @@ resource "aws_cloudwatch_metric_alarm" "high_cpu_utilization_alarm" {
   dimensions = {
     AutoScalingGroupName = aws_autoscaling_group.app_asg.name
   }
-  alarm_actions = [aws_autoscaling_policy.scale_up_policy.arn]
+  alarm_actions = [
+    aws_sns_topic.cpu_alarm_topic.arn,
+    aws_autoscaling_policy.scale_up_policy.arn
+  ]
 }
 
 resource "aws_cloudwatch_metric_alarm" "low_cpu_utilization_alarm" {
@@ -213,6 +216,9 @@ resource "aws_cloudwatch_metric_alarm" "low_cpu_utilization_alarm" {
   dimensions = {
     AutoScalingGroupName = aws_autoscaling_group.app_asg.name
   }
-  alarm_actions = [aws_autoscaling_policy.scale_down_policy.arn]
+  alarm_actions = [
+    aws_sns_topic.cpu_alarm_topic.arn,
+    aws_autoscaling_policy.scale_down_policy.arn
+  ]
 }
 

@@ -72,7 +72,7 @@ module "fargate" {
 
 module "cognito" {
   source                = "./modules/cognito"
-  user_pool_client_name = "tic-tac-toe-user-pool-client"
-  user_pool_name        = "tic-tac-toe-user-pool"
-  user_pool_domain_name = "ttt-user-pool"
+  user_pool_client_name = "tic-tac-toe-user-pool-client-artsi"
+  user_pool_name        = "tic-tac-toe-user-pool-artsi"
+  user_pool_domain_name = "ttt-user-pool-artsi"
 }

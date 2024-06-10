@@ -6,6 +6,6 @@ output "cognito_user_pool_client_id" {
   value = module.cognito.client_id
 }
 
-output "dns_lb_name" {
-  value = module.ec2[0].lb_dns_name
-}
+#output "dns_lb_name" {
+#  value = module.ec2[0].lb_dns_name
+#}

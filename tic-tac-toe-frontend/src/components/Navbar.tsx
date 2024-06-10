@@ -34,12 +34,14 @@ const Navbar = () => {
       method: 'GET'
     });
   }
+
+  const showLoadHealthDebug = false;
   
   return <NavigationMenu>
     <div className={'flex justify-between'}>
-      <Button className={'mr-14'} onClick={handleLoadCPU}>Load CPU</Button>
-      <Button className={'mr-14'} onClick={handleHealthUp}>Health Up</Button>
-      <Button className={'mr-14'} onClick={handleHealthDown}>Health Down</Button>
+      {showLoadHealthDebug && <Button className={'mr-14'} onClick={handleLoadCPU}>Load CPU</Button>}
+      {showLoadHealthDebug && <Button className={'mr-14'} onClick={handleHealthUp}>Health Up</Button>}
+      {showLoadHealthDebug && <Button className={'mr-14'} onClick={handleHealthDown}>Health Down</Button>}
       <NavigationMenuList>
         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
           <Link to="/">Home</Link>

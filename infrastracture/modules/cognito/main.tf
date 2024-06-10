@@ -49,3 +49,11 @@ resource "aws_cognito_user" "user2" {
     email_verified = true
   }
 }
+
+resource "aws_s3_bucket" "avatar_bucket" {
+  bucket = "tic-tac-toe-bucket-34cb38ee-927a-4f5f-a5e0-bd5bfabe6fd6"
+
+  tags = {
+    Name = "Avatar Bucket"
+  }
+}

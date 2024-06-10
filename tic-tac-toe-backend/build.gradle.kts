@@ -31,8 +31,13 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.amazonaws:aws-java-sdk-cognitoidp:1.12.709")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.vavr:vavr:0.10.4")
+
+    implementation("com.amazonaws:aws-java-sdk-cognitoidp:1.12.709")
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.739")
 }
 
 tasks.withType<Test> {

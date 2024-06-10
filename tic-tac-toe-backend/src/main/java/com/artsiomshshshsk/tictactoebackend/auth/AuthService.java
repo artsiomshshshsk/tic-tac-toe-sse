@@ -1,5 +1,6 @@
 package com.artsiomshshshsk.tictactoebackend.auth;
 
+
 public interface AuthService {
 
     void signUp(String username, String password, String email);

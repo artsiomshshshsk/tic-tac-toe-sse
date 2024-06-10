@@ -8,8 +8,8 @@ const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast()
   
-  const onSubmit = (username: string, email: string, password: string) => {
-    signUp(username, email, password)
+  const onSubmit = (username: string, email: string, password: string, avatar: File) => {
+    signUp(username, email, password, avatar)
       .then(() => navigate('/confirm', { state: {username} }))
       .catch((error: Error) => {
         toast({

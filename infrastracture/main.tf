@@ -49,18 +49,18 @@ resource "aws_s3_bucket" "avatar_bucket" {
   }
 }
 
-// {
-//  "Version": "2012-10-17",
-//  "Statement": [
-//    {
-//      "Sid": "PublicReadGetObject",
-//      "Effect": "Allow",
-//      "Principal": "*",
-//      "Action": "s3:GetObject",
-//      "Resource": "arn:aws:s3:::tic-tac-toe-bucket-34cb38ee-927a-4f5f-a5e0-bd5bfabe6fd6/*"
-//    }
-//  ]
-//}
+#{
+#  "Version": "2012-10-17",
+#  "Statement": [
+#    {
+#      "Sid": "PublicReadGetObject",
+#      "Effect": "Allow",
+#      "Principal": "*",
+#      "Action": "s3:GetObject",
+#      "Resource": "arn:aws:s3:::tic-tac-toe-bucket-34cb38ee-927a-4f5f-a5e0-bd5bfabe6fd6/*"
+#    }
+#  ]
+#}
 
 
 resource "aws_s3_object" "user1_avatar" {
@@ -126,8 +126,8 @@ resource "aws_security_group" "db-sg" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-#    security_groups = [module.security.security_group_id]
+#    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [module.security.security_group_id]
   }
 
   egress {
@@ -146,7 +146,7 @@ resource "aws_security_group" "db-sg" {
 resource "aws_db_instance" "postgres" {
   allocated_storage      = 20
   engine                 = "postgres"
-  publicly_accessible    = true
+#  publicly_accessible    = true
   engine_version         = "16.3"
   instance_class         = "db.t3.micro"
   username               = "artsi"

@@ -12,14 +12,6 @@ resource "aws_security_group" "app_sg" {
   }
 
   ingress {
-    description = "Backend"
-    from_port   = 8081
-    to_port     = 8081
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     description = "Load balancer"
     from_port   = 80
     to_port     = 80
@@ -63,6 +55,15 @@ resource "aws_security_group" "app_sg" {
     description = "DNS (TCP)"
     from_port   = 53
     to_port     = 53
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  //rds
+
+  egress {
+    from_port   = 5432
+    to_port     = 5432
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

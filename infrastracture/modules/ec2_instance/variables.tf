@@ -65,3 +65,18 @@ variable "profile_image_url_2" {
     description = "The URL of the second profile image"
     type        = string
 }
+
+variable "aws_access_key_id" {
+    description = "The AWS access key ID"
+    type        = string
+}
+
+variable "aws_secret_access_key" {
+    description = "The AWS secret access key"
+    type        = string
+}
+
+variable "aws_session_token" {
+    description = "The AWS session token"
+    type        = string
+}

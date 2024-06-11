@@ -49,6 +49,20 @@ resource "aws_s3_bucket" "avatar_bucket" {
   }
 }
 
+// {
+//  "Version": "2012-10-17",
+//  "Statement": [
+//    {
+//      "Sid": "PublicReadGetObject",
+//      "Effect": "Allow",
+//      "Principal": "*",
+//      "Action": "s3:GetObject",
+//      "Resource": "arn:aws:s3:::tic-tac-toe-bucket-34cb38ee-927a-4f5f-a5e0-bd5bfabe6fd6/*"
+//    }
+//  ]
+//}
+
+
 resource "aws_s3_object" "user1_avatar" {
   bucket = aws_s3_bucket.avatar_bucket.id
   key    = "user1-avatar.jpeg"
@@ -113,6 +127,7 @@ resource "aws_security_group" "db-sg" {
     to_port     = 5432
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+#    security_groups = [module.security.security_group_id]
   }
 
   egress {

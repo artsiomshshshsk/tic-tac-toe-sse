@@ -6,17 +6,21 @@ output "cognito_user_pool_client_id" {
   value = module.cognito.client_id
 }
 
+output "instance_public_ip" {
+  value = module.ec2[0].instance_public_ip
+}
+
 #output "dns_lb_name" {
 #  value = module.ec2[0].lb_dns_name
 #}
 
-output "user1_avatar_url" {
-  value = module.cognito.user1_avatar_url
-}
-
-output "user2_avatar_url" {
-  value = module.cognito.user2_avatar_url
-}
+#output "user1_avatar_url" {
+#  value = module.cognito.user1_avatar_url
+#}
+#
+#output "user2_avatar_url" {
+#  value = module.cognito.user2_avatar_url
+#}
 
 
 output "rds_endpoint" {

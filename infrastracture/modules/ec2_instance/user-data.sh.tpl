@@ -30,6 +30,7 @@ echo "Running docker compose pull"
 
 sudo docker compose pull
 
+
 echo "Creating .env file"
 
 touch .env
@@ -39,6 +40,10 @@ echo "AWS_REGION=${aws_region}" >> .env
 echo "RDS_ENDPOINT=${rds_endpoint}" >> .env
 echo "PROFILE_IMG_URL_1=${profile_image_url_1}" >> .env
 echo "PROFILE_IMG_URL_2=${profile_image_url_2}" >> .env
+echo "AWS_ACCESS_KEY_ID=${aws_access_key_id}" >> .env
+echo "AWS_SECRET_ACCESS_KEY=${aws_secret_access_key}" >> .env
+echo "AWS_SESSION_TOKEN=${aws_session_token}" >> .env
+
 
 echo "Contents of .env file:"
 cat .env

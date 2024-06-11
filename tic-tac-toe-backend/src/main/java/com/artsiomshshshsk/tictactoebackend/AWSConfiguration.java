@@ -16,8 +16,15 @@ import org.springframework.context.annotation.Configuration;
 public class AWSConfiguration {
 
     @Bean
-    public AWSCredentialsProvider amazonAWSCredentialsProvider() {
-        return DefaultAWSCredentialsProviderChain.getInstance();
+    public AWSCredentialsProvider amazonAWSCredentialsProvider(
+            @Value("${AWS_ACCESS_KEY_ID}") String accessKey,
+            @Value("${AWS_SECRET_ACCESS_KEY}") String secretKey,
+            @Value("${AWS_SESSION_TOKEN}") String sessionToken)
+    {
+        return new AWSStaticCredentialsProvider(new BasicSessionCredentials(
+                accessKey,
+                secretKey,
+                sessionToken));
     }
 
     @Bean

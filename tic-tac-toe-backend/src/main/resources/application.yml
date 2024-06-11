@@ -1,12 +1,11 @@
 server:
   port: 8081
-#docker run --name tic-tac-toe-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=ttt -p 5432:5432 -d postgres:latest
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ttt
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${RDS_ENDPOINT}/tictactoedb
+    username: artsi
+    password: artsiartsi
     driver-class-name: org.postgresql.Driver
 
   jpa:

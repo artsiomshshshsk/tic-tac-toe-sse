@@ -57,6 +57,4 @@ public record AuthController(AuthService authService, S3Service s3Service, GameU
     public record SignInRequest(String username, String password) { }
 
     public record ConfirmSignUpRequest(String username, String confirmationCode) { }
-
-    public record GameUserResponse(String username, String avatarUrl) { }
 }

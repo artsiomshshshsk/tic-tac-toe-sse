@@ -11,6 +11,7 @@ public record GameUserServiceAdapter(GameUserRepository repository) implements G
 
     @Override
     public GameUser findByUsername(String username) {
+        if(username == null) return null;
         return repository.findById(username).orElse(null);
     }
 }

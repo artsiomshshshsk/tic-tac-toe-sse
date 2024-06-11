@@ -50,3 +50,18 @@ variable "vpc_id" {
     description = "The ID of the VPC"
     type        = string
 }
+
+variable "rds_endpoint" {
+    description = "The endpoint of the RDS instance"
+    type        = string
+}
+
+variable "profile_image_url_1" {
+    description = "The URL of the first profile image"
+    type        = string
+}
+
+variable "profile_image_url_2" {
+    description = "The URL of the second profile image"
+    type        = string
+}

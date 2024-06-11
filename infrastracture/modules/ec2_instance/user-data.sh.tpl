@@ -36,6 +36,9 @@ touch .env
 echo "AWS_COGNITO_CLIENT_ID=${aws_cognito_client_id}" >> .env
 echo "AWS_COGNITO_USER_POOL_ID=${aws_cognito_user_pool_id}" >> .env
 echo "AWS_REGION=${aws_region}" >> .env
+echo "RDS_ENDPOINT=${rds_endpoint}" >> .env
+echo "PROFILE_IMG_URL_1=${profile_image_url_1}" >> .env
+echo "PROFILE_IMG_URL_2=${profile_image_url_2}" >> .env
 
 echo "Contents of .env file:"
 cat .env

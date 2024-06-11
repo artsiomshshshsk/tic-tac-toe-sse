@@ -3,6 +3,9 @@ locals {
     aws_cognito_user_pool_id = var.cognito_user_pool_id
     aws_cognito_client_id    = var.cognito_user_pool_client_id
     aws_region               = var.cognito_user_pool_region
+    rds_endpoint             = var.rds_endpoint
+    profile_image_url_1      = var.profile_image_url_1
+    profile_image_url_2      = var.profile_image_url_2
   })
 }
 

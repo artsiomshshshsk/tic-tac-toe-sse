@@ -1,19 +1,26 @@
 package com.artsiomshshshsk.tictactoebackend.game;
 
+import com.artsiomshshshsk.tictactoebackend.user.GameUser;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Getter
 @Setter
+@Slf4j
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class Game {
 
     final String firstPlayer;
     final String secondPlayer;
+    final GameController.GameUserResponse firstPlayerResponse;
+    final GameController.GameUserResponse secondPlayerResponse;
     String currentPlayer;
     Move allowedCurrentMove = Move.X;
     Cell[][] board = new Cell[3][3];
@@ -21,9 +28,16 @@ public class Game {
     long gameId;
     Consumer<GameController.GameEvent> gameEventConsumer;
 
-    public Game(String firstPlayer, String secondPlayer, Consumer<GameController.GameEvent> gameEventConsumer) {
+    public Game(String firstPlayer, String secondPlayer, Consumer<GameController.GameEvent> gameEventConsumer, Function<String, GameUser> gameUserSupplier) {
         this.firstPlayer = firstPlayer;
         this.secondPlayer = secondPlayer;
+
+        var gameUser1 = gameUserSupplier.apply(firstPlayer);
+        var gameUser2 = gameUserSupplier.apply(secondPlayer);
+
+        firstPlayerResponse = new GameController.GameUserResponse(gameUser1.getUsername(), gameUser1.getAvatarUrl());
+        secondPlayerResponse = new GameController.GameUserResponse(gameUser2.getUsername(), gameUser2.getAvatarUrl());
+
         this.currentPlayer = new Random().nextBoolean() ? firstPlayer : secondPlayer;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -32,12 +46,17 @@ public class Game {
         }
         gameId = id++;
         this.gameEventConsumer = gameEventConsumer;
-        gameEventConsumer.accept(new GameController.GameEvent(GameController.GameStatus.GAME_STARTED, board, null, currentPlayer, gameId));
+        gameEventConsumer.accept(new GameController.GameEvent(GameController.GameStatus.GAME_STARTED, board, null, currentPlayer, gameId,
+                firstPlayerResponse,
+                secondPlayerResponse)
+        );
     }
 
 
 
     public void makeMove(int x, int y, String playerName) {
+        prettyPrintBoard();
+
         if(!playerName.equals(firstPlayer) && !playerName.equals(secondPlayer)) {
             throw new IllegalMoveException("Invalid player");
         }
@@ -54,18 +73,18 @@ public class Game {
         board[x][y] = allowedCurrentMove == Move.X ? Cell.X : Cell.O;
 
         if(isWinningMove()) {
-            gameEventConsumer.accept(new GameController.GameEvent(GameController.GameStatus.GAME_ENDED, board, playerName, currentPlayer, gameId));
+            gameEventConsumer.accept(new GameController.GameEvent(GameController.GameStatus.GAME_ENDED, board, playerName, currentPlayer, gameId,firstPlayerResponse, secondPlayerResponse));
             return;
         }
 
         if(isBoardFull()) {
-            gameEventConsumer.accept(new GameController.GameEvent(GameController.GameStatus.GAME_ENDED, board, null, currentPlayer, gameId));
+            gameEventConsumer.accept(new GameController.GameEvent(GameController.GameStatus.GAME_ENDED, board, null, currentPlayer, gameId, firstPlayerResponse, secondPlayerResponse));
             return;
         }
 
         allowedCurrentMove = allowedCurrentMove == Move.X ? Move.O : Move.X;
         currentPlayer = currentPlayer.equals(firstPlayer) ? secondPlayer : firstPlayer;
-        gameEventConsumer.accept(new GameController.GameEvent(GameController.GameStatus.GAME_UPDATED, board, null, currentPlayer, gameId));
+        gameEventConsumer.accept(new GameController.GameEvent(GameController.GameStatus.GAME_UPDATED, board, null, currentPlayer, gameId, firstPlayerResponse, secondPlayerResponse));
     }
 
 
@@ -89,6 +108,12 @@ public class Game {
             }
         }
         return false;
+    }
+
+    private void prettyPrintBoard() {
+        for (int i = 0; i < 3; i++) {
+            System.out.println(board[i][0] + " " + board[i][1] + " " + board[i][2]);
+        }
     }
 
     private boolean checkDiagonals() {

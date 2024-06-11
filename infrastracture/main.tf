@@ -40,6 +40,30 @@ module "elastic_beanstalk" {
   security_group_ids  = [module.security.security_group_id]
 }
 
+
+resource "aws_s3_bucket" "avatar_bucket" {
+  bucket = "tic-tac-toe-bucket-34cb38ee-927a-4f5f-a5e0-bd5bfabe6fd6"
+
+  tags = {
+    Name = "Avatar Bucket"
+  }
+}
+
+resource "aws_s3_object" "user1_avatar" {
+  bucket = aws_s3_bucket.avatar_bucket.id
+  key    = "user1-avatar.jpeg"
+  source = "./avatar1.jpeg"
+  etag   = filemd5("./avatar1.jpeg")
+}
+
+resource "aws_s3_object" "user2_avatar" {
+  bucket = aws_s3_bucket.avatar_bucket.id
+  key    = "user2-avatar.jpeg"
+  source = "./avatar2.jpeg"
+  etag   = filemd5("./avatar2.jpeg")
+}
+
+
 module "ec2" {
   source                      = "./modules/ec2_instance"
   count                       = var.ec2_deployment ? 1 : 0
@@ -52,6 +76,9 @@ module "ec2" {
   cognito_user_pool_id        = module.cognito.user_pool_id
   cognito_user_pool_region    = var.region
   vpc_id                      = module.networking.vpc_id
+  rds_endpoint                = aws_db_instance.postgres.endpoint
+  profile_image_url_1         = "https://${aws_s3_bucket.avatar_bucket.bucket}.s3.amazonaws.com/${aws_s3_object.user1_avatar.key}"
+  profile_image_url_2         = "https://${aws_s3_bucket.avatar_bucket.bucket}.s3.amazonaws.com/${aws_s3_object.user2_avatar.key}"
 }
 
 
@@ -76,3 +103,57 @@ module "cognito" {
   user_pool_name        = "tic-tac-toe-user-pool-artsi"
   user_pool_domain_name = "ttt-user-pool-artsi"
 }
+
+
+resource "aws_security_group" "db-sg" {
+  vpc_id = module.networking.vpc_id
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "main-sg"
+  }
+}
+
+
+resource "aws_db_instance" "postgres" {
+  allocated_storage      = 20
+  engine                 = "postgres"
+  publicly_accessible    = true
+  engine_version         = "16.3"
+  instance_class         = "db.t3.micro"
+  username               = "artsi"
+  password               = "artsiartsi"
+  parameter_group_name   = "default.postgres16"
+  skip_final_snapshot    = true
+  vpc_security_group_ids = [aws_security_group.db-sg.id]
+  db_subnet_group_name   = aws_db_subnet_group.main.name
+  db_name                = "tictactoedb"
+
+  tags = {
+    Name = "postgres-rds"
+  }
+}
+
+
+resource "aws_db_subnet_group" "main" {
+  name       = "main-subnet-group"
+  subnet_ids = module.networking.subnet_ids
+
+  tags = {
+    Name = "main-subnet-group"
+  }
+}
+

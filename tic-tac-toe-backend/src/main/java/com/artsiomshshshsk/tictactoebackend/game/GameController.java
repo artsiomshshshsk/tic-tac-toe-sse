@@ -1,6 +1,7 @@
 package com.artsiomshshshsk.tictactoebackend.game;
 
 import com.artsiomshshshsk.tictactoebackend.auth.AuthAcknowledged;
+import com.artsiomshshshsk.tictactoebackend.user.GameUserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -10,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -24,6 +25,10 @@ public class GameController implements AuthAcknowledged {
     Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     Set<String> waitingPlayers = ConcurrentHashMap.newKeySet();
     Map<Long, Game> games = new ConcurrentHashMap<>();
+
+    GameUserService gameUserService;
+
+    GameResultRepository gameResultRepository;
 
 
     @GetMapping("/subscribe")
@@ -53,13 +58,22 @@ public class GameController implements AuthAcknowledged {
                 var firstEmitter = emitters.get(player1);
                 var secondEmitter = emitters.get(player2);
 
+                if(gameEvent.event.equals(GameStatus.GAME_ENDED)) {
+                    var winner = gameEvent.winner();
+                    var gameResult = new GameResult(gameUserService.findByUsername(player1),
+                            gameUserService.findByUsername(player2),
+                            gameUserService.findByUsername(winner));
+                    gameResultRepository.save(gameResult);
+                }
+
                 try {
                     firstEmitter.send(gameEvent);
                     secondEmitter.send(gameEvent);
+                    log.info("Event sent: {}", gameEvent);
                 } catch (IOException e) {
                     log.info("Something bad happened while emitting events");
                 }
-            });
+            }, gameUserService::findByUsername);
             games.put(game.getGameId(), game);
         }
         return emitter;
@@ -80,11 +94,47 @@ public class GameController implements AuthAcknowledged {
         return ResponseEntity.ok().build();
     }
 
-    public record GameEvent(GameStatus event, Game.Cell[][] board, String winner, String currentPlayer, long gameId) {}
+    @GetMapping("/gameResults")
+    public ResponseEntity<List<GameResultResponse>> gameResults() {
+        var username = getUserName();
+        List<GameResult> gameResults = new ArrayList<>();
+        gameResultRepository.findAll().forEach(gameResults::add);
+        return ResponseEntity.of(Optional.of(Arrays.stream(gameResults.toArray()).filter(gameResult -> {
+            var result = (GameResult) gameResult;
+            return result.getFirstPlayer().getUsername().equals(username) || result.getSecondPlayer().getUsername().equals(username);
+        }).map(gameResult -> {
+
+            var winner = ((GameResult) gameResult).getWinner();
+
+            return new GameResultResponse(
+                    ((GameResult) gameResult).getId(),
+                    new GameUserResponse(((GameResult) gameResult).getFirstPlayer().getUsername(), ((GameResult) gameResult).getFirstPlayer().getAvatarUrl()),
+                    new GameUserResponse(((GameResult) gameResult).getSecondPlayer().getUsername(), ((GameResult) gameResult).getSecondPlayer().getAvatarUrl()),
+                    winner == null ? null : new GameUserResponse(winner.getUsername(), winner.getAvatarUrl()),
+                    ((GameResult) gameResult).getPlayedAt()
+            );
+        }).toList()));
+    }
+
+    @GetMapping("/user-data")
+    public ResponseEntity<GameUserResponse> userData() {
+        var gameUser = gameUserService.findByUsername(getUserName());
+        return ResponseEntity.ok(new GameUserResponse(gameUser.getUsername(), gameUser.getAvatarUrl()));
+    }
+
+    public record GameEvent(GameStatus event, Game.Cell[][] board, String winner,
+                            String currentPlayer,
+                            long gameId,
+                            GameUserResponse user1,
+                            GameUserResponse user2) {}
 
     public record MoveRequest(int x, int y) { }
 
     public enum GameStatus {GAME_STARTED, GAME_UPDATED, GAME_ENDED, ILLEGAL_MOVE}
+
+    public record GameUserResponse(String username, String avatarUrl) { }
+
+    public record GameResultResponse(Long id, GameUserResponse firstPlayer, GameUserResponse secondPlayer, GameUserResponse winner, LocalDate playedAt) {}
 
     public record ErrorResponse(String message) { }
 }

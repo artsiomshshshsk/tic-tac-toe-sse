@@ -7,6 +7,6 @@ output "app_subnet" {
   value = aws_subnet.app_subnet
 }
 
-output "db_subnet" {
-  value = aws_subnet.db_subnet
+output "db_subnet_ids" {
+  value = [aws_subnet.db_subnet1.id, aws_subnet.db_subnet2.id]
 }

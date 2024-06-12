@@ -107,6 +107,33 @@ resource "aws_s3_bucket" "avatar_bucket" {
   }
 }
 
+resource "aws_s3_bucket_public_access_block" "avatar_bucket" {
+  bucket = aws_s3_bucket.avatar_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+//policy for public-read
+resource "aws_s3_bucket_policy" "avatar_bucket" {
+  bucket = aws_s3_bucket.avatar_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "${aws_s3_bucket.avatar_bucket.arn}/*",
+      },
+    ],
+  })
+}
+
 
 resource "aws_s3_object" "user1_avatar" {
   bucket = aws_s3_bucket.avatar_bucket.id
@@ -148,14 +175,8 @@ resource "aws_security_group" "db-sg" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
+    description     = "allow postgres traffic only from the app sg"
     security_groups = [aws_security_group.app_sg.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -185,23 +206,9 @@ resource "aws_db_instance" "postgres" {
 
 resource "aws_db_subnet_group" "main" {
   name       = "main-subnet-group"
-  subnet_ids = [module.networking.db_subnet.id]
+  subnet_ids = module.networking.db_subnet_ids
 
   tags = {
     Name = "main-subnet-group"
   }
 }
-
-
-#{
-#  "Version": "2012-10-17",
-#  "Statement": [
-#    {
-#      "Sid": "PublicReadGetObject",
-#      "Effect": "Allow",
-#      "Principal": "*",
-#      "Action": "s3:GetObject",
-#      "Resource": "arn:aws:s3:::tic-tac-toe-bucket-34cb38ee-927a-4f5f-a5e0-bd5bfabe6fd6/*"
-#    }
-#  ]
-#}

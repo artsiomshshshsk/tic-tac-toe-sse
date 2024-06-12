@@ -6,15 +6,21 @@ resource "aws_vpc" "app_vpc" {
 
 resource "aws_subnet" "app_subnet" {
   vpc_id     = aws_vpc.app_vpc.id
-  cidr_block = "10.0.3.0/24"
+  cidr_block = "10.0.7.0/24"
   availability_zone = "us-east-1a"
   map_public_ip_on_launch = true
 }
 
-resource "aws_subnet" "db_subnet" {
+resource "aws_subnet" "db_subnet1" {
   vpc_id            = aws_vpc.app_vpc.id
-  cidr_block        = "10.0.4.0/24"
+  cidr_block        = "10.0.8.0/24"
   availability_zone = "us-east-1b"
+}
+
+resource "aws_subnet" "db_subnet2" {
+  vpc_id            = aws_vpc.app_vpc.id
+  cidr_block        = "10.0.9.0/24"
+  availability_zone = "us-east-1a"
 }
 
 resource "aws_internet_gateway" "app_gw" {
